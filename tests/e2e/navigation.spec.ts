@@ -315,12 +315,12 @@ test.describe("docs sidebar navigation", () => {
     await expect(sidebar.getByRole("combobox")).toBeVisible();
   });
 
-  test("Reference AppKit link opens latest AppKit docs entry", async ({
+  test("Databricks Apps AppKit link opens latest AppKit docs entry", async ({
     page,
   }) => {
     await page.goto("/docs/start-here");
     const sidebar = page.getByRole("navigation", { name: "Docs sidebar" });
-    await sidebar.getByRole("button", { name: "Reference" }).click();
+    await sidebar.getByRole("button", { name: "Databricks Apps" }).click();
     const appKitReferenceLink = page
       .locator(
         'nav[aria-label="Docs sidebar"] a.menu__link[href*="/docs/appkit/"]',

@@ -75,13 +75,16 @@ function isAppKitDocsPath(path: string): boolean {
 }
 
 function getAppKitSidebarItems(sidebar: SidebarLikeItem[]): SidebarLikeItem[] {
-  const referencesCategory = findCategoryByLabel(sidebar, "reference");
-  if (!referencesCategory || !isSidebarCategory(referencesCategory)) {
+  const databricksAppsCategory = findCategoryByLabel(
+    sidebar,
+    "databricks apps",
+  );
+  if (!databricksAppsCategory || !isSidebarCategory(databricksAppsCategory)) {
     return [];
   }
 
   const appKitCategory = findCategoryByLabel(
-    referencesCategory.items,
+    databricksAppsCategory.items,
     "appkit",
   );
   if (!appKitCategory || !isSidebarCategory(appKitCategory)) {

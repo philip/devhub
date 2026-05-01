@@ -180,7 +180,11 @@ const sidebars: SidebarsConfig = {
     {
       type: "category",
       label: "Set up your environment",
-      items: ["tools/databricks-cli", "tools/ai-tools/agent-skills"],
+      items: [
+        "tools/databricks-cli",
+        "tools/ai-tools/agent-skills",
+        "tools/ai-tools/docs-mcp-server",
+      ],
     },
     {
       type: "category",
@@ -190,6 +194,15 @@ const sidebars: SidebarsConfig = {
         "apps/quickstart",
         "apps/configuration",
         "apps/development",
+        {
+          type: "category",
+          label: "AppKit",
+          collapsed: true,
+          ...(appKitIndexDocId
+            ? { link: { type: "doc" as const, id: appKitIndexDocId } }
+            : {}),
+          items: appKitItems,
+        },
       ],
     },
     {
@@ -220,27 +233,6 @@ const sidebars: SidebarsConfig = {
         "agents/ai-gateway",
         "agents/genie",
         "agents/custom-agents",
-      ],
-    },
-    {
-      type: "category",
-      label: "Reference",
-      items: [
-        {
-          type: "link",
-          label: "Databricks CLI",
-          href: "https://docs.databricks.com/aws/en/dev-tools/cli/commands",
-        },
-        "tools/ai-tools/docs-mcp-server",
-        {
-          type: "category",
-          label: "AppKit",
-          collapsed: true,
-          ...(appKitIndexDocId
-            ? { link: { type: "doc" as const, id: appKitIndexDocId } }
-            : {}),
-          items: appKitItems,
-        },
       ],
     },
   ],
