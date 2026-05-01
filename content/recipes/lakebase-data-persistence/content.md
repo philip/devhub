@@ -212,7 +212,7 @@ If you are the Lakebase project owner, `databricks_create_role` may fail with `r
 
 This gives you DML access (read/write) but not DDL (create/alter). The service principal remains the schema owner.
 
-If you already created tables locally, drop and recreate the schema so the service principal owns it, or add tables in a separate schema (the [Chat Persistence template](/templates/ai-chat-app#lakebase-chat-persistence) uses a `chat` schema for this reason).
+If you already created tables locally, drop and recreate the schema so the service principal owns it, or add tables in a separate schema (the [Lakebase Agent Memory template](/templates/ai-chat-app#lakebase-agent-memory) uses a `chat` schema for this reason).
 :::
 
 #### Create `client/src/pages/ItemsPage.tsx`

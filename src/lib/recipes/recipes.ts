@@ -143,17 +143,15 @@ export const recipes: Recipe[] = [
       "/img/guides/model-serving-endpoint-creation-preview-dark.png",
   },
   {
-    id: "lakebase-chat-persistence",
-    name: "Lakebase Chat Persistence",
+    id: "lakebase-agent-memory",
+    name: "Lakebase Agent Memory",
     description:
-      "Persist chat sessions and messages in Lakebase so users can resume chat history across requests and deployments.",
+      "Persist your AI agent's chat sessions and messages in Lakebase so users can resume conversations and your agent can reason over prior turns across deploys.",
     tags: ["Lakebase", "Postgres", "Chat", "Persistence"],
     services: ["Lakebase Postgres", "Databricks Apps"],
     prerequisites: ["lakebase-data-persistence", "ai-chat-model-serving"],
-    previewImageLightUrl:
-      "/img/guides/lakebase-chat-persistence-preview-light.png",
-    previewImageDarkUrl:
-      "/img/guides/lakebase-chat-persistence-preview-dark.png",
+    previewImageLightUrl: "/img/guides/lakebase-agent-memory-preview-light.png",
+    previewImageDarkUrl: "/img/guides/lakebase-agent-memory-preview-dark.png",
   },
   {
     id: "lakebase-create-instance",
@@ -373,7 +371,7 @@ export const recipesInOrder: Recipe[] = [
   "embeddings-generation",
   "model-serving-endpoint-creation",
   "ai-chat-model-serving",
-  "lakebase-chat-persistence",
+  "lakebase-agent-memory",
   "lakebase-change-data-feed-autoscaling",
   "sync-tables-autoscaling",
   "unity-catalog-setup",
@@ -444,7 +442,7 @@ export const cookbooks: Cookbook[] = [
       "ai-chat-model-serving",
       "lakebase-create-instance",
       "lakebase-data-persistence",
-      "lakebase-chat-persistence",
+      "lakebase-agent-memory",
     ],
     previewImageLightUrl: "/img/guides/ai-chat-app-preview-light.png",
     previewImageDarkUrl: "/img/guides/ai-chat-app-preview-dark.png",
@@ -671,7 +669,7 @@ export const examples: Example[] = [
     initCommand:
       'databricks apps init \\\n  --template https://github.com/databricks/devhub/tree/main/examples/rag-chat/template \\\n  --name rag-chat-app \\\n  --set lakebase.postgres.branch="$BRANCH_NAME" \\\n  --set lakebase.postgres.database="$DATABASE_NAME"',
     cookbookIds: ["ai-chat-app"],
-    recipeIds: ["ai-chat-model-serving", "lakebase-chat-persistence"],
+    recipeIds: ["ai-chat-model-serving", "lakebase-agent-memory"],
     previewImageLightUrl: "/img/examples/rag-chat-preview-light.png",
     previewImageDarkUrl: "/img/examples/rag-chat-preview-dark.png",
   }),
