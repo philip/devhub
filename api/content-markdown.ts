@@ -23,7 +23,13 @@ import {
   cookbooks,
 } from "../src/lib/recipes/recipes";
 import { showDrafts } from "../src/lib/feature-flags-server";
-import { solutions, isLinkedSolution } from "../src/lib/solutions/solutions";
+import {
+  solutions,
+  isLinkedSolution,
+  isNativeSolution,
+  type NativeSolution,
+} from "../src/lib/solutions/solutions";
+import { getAuthor } from "../src/lib/solutions/authors";
 
 export type MarkdownSection =
   | "docs"
@@ -98,7 +104,49 @@ function readSolutionMarkdown(rootDir: string, slug: string): string {
       `Solution markdown source missing for "${slug}" at content/solutions/${slug}.md`,
     );
   }
-  return content;
+
+  const native = solutions.find(
+    (entry): entry is NativeSolution =>
+      entry.id === slug && isNativeSolution(entry),
+  );
+  if (!native) {
+    return content;
+  }
+  return injectSolutionFrontmatter(content, native);
+}
+
+const FRONTMATTER_PATTERN = /^---\n([\s\S]*?)\n---\n?/;
+
+function injectSolutionFrontmatter(
+  content: string,
+  solution: NativeSolution,
+): string {
+  const authorBlock = solution.authors
+    .map((id) => {
+      const author = getAuthor(id);
+      return [`  - name: ${author.name}`, `    role: ${author.role}`].join(
+        "\n",
+      );
+    })
+    .join("\n");
+  const injected = [
+    `publishedAt: ${solution.publishedAt}`,
+    `authors:`,
+    authorBlock,
+  ].join("\n");
+
+  const match = content.match(FRONTMATTER_PATTERN);
+  if (!match) {
+    return `---\n${injected}\n---\n\n${content}`;
+  }
+  const existing = match[1];
+  const filtered = existing
+    .split("\n")
+    .filter((line) => !/^(authors|publishedAt)\s*:/i.test(line))
+    .join("\n")
+    .trimEnd();
+  const merged = filtered.length > 0 ? `${filtered}\n${injected}` : injected;
+  return `---\n${merged}\n---\n${content.slice(match[0].length)}`;
 }
 
 function readRecipeMarkdown(rootDir: string, slug: string): string {

@@ -16,6 +16,18 @@ describe("detail markdown resolver", () => {
     expect(markdown).toContain("# Introducing dev.databricks.com");
   });
 
+  test("solution markdown frontmatter carries author and publishedAt", () => {
+    const markdown = getDetailMarkdown("solutions", "devhub-launch");
+    const frontmatter = markdown.match(/^---\n([\s\S]*?)\n---/);
+    expect(frontmatter).not.toBeNull();
+    if (!frontmatter) return;
+    const block = frontmatter[1];
+    expect(block).toMatch(/^publishedAt:\s*2026-05-04$/m);
+    expect(block).toMatch(/^authors:$/m);
+    expect(block).toContain("name: Andre Landgraf");
+    expect(block).toContain("role: Staff Developer Advocate, Databricks");
+  });
+
   test("resolves recipe markdown", () => {
     const markdown = getDetailMarkdown(
       "recipes",
