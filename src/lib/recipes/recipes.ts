@@ -97,7 +97,7 @@ export const recipes: Recipe[] = [
     name: "Streaming AI Chat with Model Serving",
     description:
       "Build a streaming AI chat experience using AI SDK and Databricks Model Serving endpoints.",
-    tags: ["AI", "Chat", "AI SDK", "Model Serving"],
+    tags: ["Agent Bricks", "AI", "Chat", "AI SDK", "Model Serving"],
     services: ["Databricks Apps", "Model Serving"],
     previewImageLightUrl: "/img/guides/ai-chat-model-serving-preview-light.png",
     previewImageDarkUrl: "/img/guides/ai-chat-model-serving-preview-dark.png",
@@ -112,7 +112,7 @@ export const recipes: Recipe[] = [
     name: "Query AI Gateway Endpoints",
     description:
       "Query AI Gateway endpoints for production-ready access to foundation models with built-in governance.",
-    tags: ["AI", "AI Gateway", "Foundation Models"],
+    tags: ["Agent Bricks", "AI", "AI Gateway", "Foundation Models"],
     services: ["AI Gateway"],
     prerequisites: ["set-up-your-local-dev-environment"],
     previewImageLightUrl: "/img/guides/foundation-models-api-preview-light.png",
@@ -123,7 +123,7 @@ export const recipes: Recipe[] = [
     name: "Generate Embeddings with AI Gateway",
     description:
       "Generate text embeddings from a Databricks AI Gateway endpoint using the Databricks SDK.",
-    tags: ["AI", "AI Gateway", "Embeddings"],
+    tags: ["Agent Bricks", "AI", "AI Gateway", "Embeddings"],
     services: ["AI Gateway"],
     prerequisites: ["set-up-your-local-dev-environment"],
     previewImageLightUrl: "/img/guides/embeddings-generation-preview-light.png",
@@ -134,7 +134,13 @@ export const recipes: Recipe[] = [
     name: "Create a Databricks Model Serving endpoint",
     description:
       "Create and validate a Databricks Model Serving endpoint for AI chat inference in Databricks Apps.",
-    tags: ["Model Serving", "AI Gateway", "Endpoints", "Inference"],
+    tags: [
+      "Agent Bricks",
+      "Model Serving",
+      "AI Gateway",
+      "Endpoints",
+      "Inference",
+    ],
     services: ["Model Serving", "AI Gateway"],
     prerequisites: ["set-up-your-local-dev-environment"],
     previewImageLightUrl:
