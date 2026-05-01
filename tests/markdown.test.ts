@@ -19,9 +19,9 @@ describe("detail markdown resolver", () => {
   test("resolves recipe markdown", () => {
     const markdown = getDetailMarkdown(
       "recipes",
-      "connect-workstation-to-databricks",
+      "set-up-your-local-dev-environment",
     );
-    expect(markdown).toContain("## Connect Your Workstation to Databricks");
+    expect(markdown).toContain("## Set Up Your Local Dev Environment");
     expect(markdown).toContain("databricks -v");
   });
 
@@ -37,12 +37,10 @@ describe("detail markdown resolver", () => {
     expect(markdown).toContain("## Lakebase Chat Persistence");
   });
 
-  test("template markdown no longer embeds the connect-workstation recipe (now injected by the meta-prompt)", () => {
+  test("template markdown no longer embeds the local dev environment recipe (now injected by the meta-prompt)", () => {
     const markdown = getDetailMarkdown("templates", "ai-chat-app");
-    expect(markdown).not.toContain("## Connect Your Workstation to Databricks");
-    expect(markdown).not.toMatch(
-      /^### Connect Your Workstation to Databricks$/m,
-    );
+    expect(markdown).not.toContain("## Set Up Your Local Dev Environment");
+    expect(markdown).not.toMatch(/^### Set Up Your Local Dev Environment$/m);
   });
 
   test("template markdown hoists all recipe prereqs before any recipe content", () => {
@@ -88,9 +86,9 @@ describe("templates section resolves recipes, examples, and cookbooks", () => {
   test("resolves a recipe slug via templates", () => {
     const markdown = getDetailMarkdown(
       "templates",
-      "connect-workstation-to-databricks",
+      "set-up-your-local-dev-environment",
     );
-    expect(markdown).toContain("## Connect Your Workstation to Databricks");
+    expect(markdown).toContain("## Set Up Your Local Dev Environment");
   });
 
   test("resolves an example slug via templates", () => {
@@ -121,7 +119,7 @@ describe("empty-slug index pages", () => {
     expect(markdown).toMatch(/\(\/templates\/[\w-]+\.md\)/);
     expect(markdown).toContain("/templates/ai-chat-app.md");
     expect(markdown).toContain(
-      "/templates/connect-workstation-to-databricks.md",
+      "/templates/set-up-your-local-dev-environment.md",
     );
     expect(markdown).not.toContain("/templates/hello-world-app.md");
   });
@@ -201,12 +199,12 @@ describe("composeTemplateAgentPrompt wraps template bodies in the agent prompt",
   test("rewrites canonical origin to localhost when called with localhost", () => {
     const body = getDetailMarkdown(
       "recipes",
-      "connect-workstation-to-databricks",
+      "set-up-your-local-dev-environment",
     );
     const result = composeTemplateAgentPrompt({
       body,
       section: "recipes",
-      slug: "connect-workstation-to-databricks",
+      slug: "set-up-your-local-dev-environment",
       siteOrigin: "localhost:3001",
     });
     expect(result).toContain("http://localhost:3001/llms.txt");
@@ -217,12 +215,12 @@ describe("composeTemplateAgentPrompt wraps template bodies in the agent prompt",
   test("preserves canonical origin when production host is used", () => {
     const body = getDetailMarkdown(
       "recipes",
-      "connect-workstation-to-databricks",
+      "set-up-your-local-dev-environment",
     );
     const result = composeTemplateAgentPrompt({
       body,
       section: "recipes",
-      slug: "connect-workstation-to-databricks",
+      slug: "set-up-your-local-dev-environment",
       siteOrigin: "dev.databricks.com",
     });
     expect(result).toContain("https://dev.databricks.com/llms.txt");
@@ -239,9 +237,9 @@ describe("slug normalization strips .md extension", () => {
   test("recipe slug with .md extension resolves", () => {
     const markdown = getDetailMarkdown(
       "recipes",
-      "connect-workstation-to-databricks.md",
+      "set-up-your-local-dev-environment.md",
     );
-    expect(markdown).toContain("## Connect Your Workstation to Databricks");
+    expect(markdown).toContain("## Set Up Your Local Dev Environment");
   });
 
   test("templates slug with .md extension resolves", () => {

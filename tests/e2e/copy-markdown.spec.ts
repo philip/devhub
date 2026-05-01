@@ -47,13 +47,13 @@ test.describe("copy markdown exports raw markdown on recipe pages", () => {
     page,
   }) => {
     await setupClipboardMock(page);
-    await page.goto("/templates/connect-workstation-to-databricks");
+    await page.goto("/templates/set-up-your-local-dev-environment");
 
     await clickCopyPromptAndWaitForToast(page);
 
     const copied = await getCopiedText(page);
     expect(copied).toContain("# About DevHub");
-    expect(copied).toContain("## Connect Your Workstation to Databricks");
+    expect(copied).toContain("## Set Up Your Local Dev Environment");
     expect(copied).toContain("```bash");
     expect(copied).toContain("databricks -v");
     expect(copied).toContain("llms.txt");
@@ -75,14 +75,14 @@ test.describe("copy markdown exports raw markdown on template pages", () => {
     expect(copied).toContain("# Working with DevHub prompts");
     expect(copied).toContain("# What the user just did");
     expect(copied).toContain("# Verify your local Databricks dev environment");
-    expect(copied).toContain("## Connect Your Workstation to Databricks");
+    expect(copied).toContain("## Set Up Your Local Dev Environment");
     // Cookbook body comes after the meta-prompt, with its own frontmatter:
     expect(copied).toContain('title: "AI Chat App"');
     expect(copied).toContain("# The cookbook the user copied");
     expect(copied).toContain("```bash");
   });
 
-  test("multi-recipe cookbook body no longer embeds the connect-workstation recipe", async ({
+  test("multi-recipe cookbook body no longer embeds the local-dev-environment recipe", async ({
     page,
   }) => {
     await setupClipboardMock(page);
@@ -92,10 +92,10 @@ test.describe("copy markdown exports raw markdown on template pages", () => {
 
     const copied = await getCopiedText(page);
     expect(copied).toContain("# About DevHub");
-    // The connect-workstation recipe heading is present exactly once — injected
-    // by the meta-prompt, NOT duplicated inside the cookbook body.
+    // The local-dev-environment recipe heading is present exactly once —
+    // injected by the meta-prompt, NOT duplicated inside the cookbook body.
     const bootstrapHeadings = copied.match(
-      /^## Connect Your Workstation to Databricks$/gm,
+      /^## Set Up Your Local Dev Environment$/gm,
     );
     expect(bootstrapHeadings?.length).toBe(1);
     expect(copied).toContain("## Lakebase Data Persistence");

@@ -69,8 +69,8 @@ type CookbookPreviewItem = {
 
 export const recipes: Recipe[] = [
   {
-    id: "connect-workstation-to-databricks",
-    name: "Connect Your Workstation to Databricks",
+    id: "set-up-your-local-dev-environment",
+    name: "Set Up Your Local Dev Environment",
     description:
       "Install the Databricks CLI, authenticate a profile, and verify the handshake. The strict prerequisite for every other DevHub recipe and template.",
     tags: ["Databricks CLI", "Auth", "Setup"],
@@ -102,7 +102,7 @@ export const recipes: Recipe[] = [
     previewImageLightUrl: "/img/guides/ai-chat-model-serving-preview-light.png",
     previewImageDarkUrl: "/img/guides/ai-chat-model-serving-preview-dark.png",
     prerequisites: [
-      "connect-workstation-to-databricks",
+      "set-up-your-local-dev-environment",
       "lakebase-data-persistence",
       "foundation-models-api",
     ],
@@ -114,7 +114,7 @@ export const recipes: Recipe[] = [
       "Query AI Gateway endpoints for production-ready access to foundation models with built-in governance.",
     tags: ["AI", "AI Gateway", "Foundation Models"],
     services: ["AI Gateway"],
-    prerequisites: ["connect-workstation-to-databricks"],
+    prerequisites: ["set-up-your-local-dev-environment"],
     previewImageLightUrl: "/img/guides/foundation-models-api-preview-light.png",
     previewImageDarkUrl: "/img/guides/foundation-models-api-preview-dark.png",
   },
@@ -125,7 +125,7 @@ export const recipes: Recipe[] = [
       "Generate text embeddings from a Databricks AI Gateway endpoint using the Databricks SDK.",
     tags: ["AI", "AI Gateway", "Embeddings"],
     services: ["AI Gateway"],
-    prerequisites: ["connect-workstation-to-databricks"],
+    prerequisites: ["set-up-your-local-dev-environment"],
     previewImageLightUrl: "/img/guides/embeddings-generation-preview-light.png",
     previewImageDarkUrl: "/img/guides/embeddings-generation-preview-dark.png",
   },
@@ -136,7 +136,7 @@ export const recipes: Recipe[] = [
       "Create and validate a Databricks Model Serving endpoint for AI chat inference in Databricks Apps.",
     tags: ["Model Serving", "AI Gateway", "Endpoints", "Inference"],
     services: ["Model Serving", "AI Gateway"],
-    prerequisites: ["connect-workstation-to-databricks"],
+    prerequisites: ["set-up-your-local-dev-environment"],
     previewImageLightUrl:
       "/img/guides/model-serving-endpoint-creation-preview-light.png",
     previewImageDarkUrl:
@@ -162,7 +162,7 @@ export const recipes: Recipe[] = [
       "Provision a managed Lakebase Postgres project on Databricks and collect the connection values needed by downstream templates.",
     tags: ["Lakebase", "Postgres", "Setup"],
     services: ["Lakebase"],
-    prerequisites: ["connect-workstation-to-databricks"],
+    prerequisites: ["set-up-your-local-dev-environment"],
     previewImageLightUrl:
       "/img/guides/lakebase-create-instance-preview-light.png",
     previewImageDarkUrl:
@@ -176,7 +176,7 @@ export const recipes: Recipe[] = [
     tags: ["Lakebase", "Postgres", "CRUD", "Data"],
     services: ["Lakebase", "Databricks Apps"],
     prerequisites: [
-      "connect-workstation-to-databricks",
+      "set-up-your-local-dev-environment",
       "lakebase-create-instance",
     ],
     previewImageLightUrl:
@@ -192,7 +192,7 @@ export const recipes: Recipe[] = [
     tags: ["Lakebase", "Postgres", "pgvector", "Vector Search", "Embeddings"],
     services: ["Lakebase"],
     prerequisites: [
-      "connect-workstation-to-databricks",
+      "set-up-your-local-dev-environment",
       "lakebase-create-instance",
     ],
     previewImageLightUrl: "/img/guides/lakebase-pgvector-preview-light.png",
@@ -212,7 +212,7 @@ export const recipes: Recipe[] = [
       "Delta",
     ],
     services: ["Lakebase", "Unity Catalog"],
-    prerequisites: ["connect-workstation-to-databricks"],
+    prerequisites: ["set-up-your-local-dev-environment"],
     previewImageLightUrl:
       "/img/guides/lakebase-change-data-feed-autoscaling-preview-light.png",
     previewImageDarkUrl:
@@ -225,7 +225,7 @@ export const recipes: Recipe[] = [
       "Sync Unity Catalog tables into Lakebase Autoscaling Postgres as synced tables for sub-10ms application queries, with snapshot, triggered, or continuous modes.",
     tags: ["Lakebase", "Sync Tables", "Unity Catalog", "Synced Tables", "CDF"],
     services: ["Lakebase", "Unity Catalog"],
-    prerequisites: ["connect-workstation-to-databricks"],
+    prerequisites: ["set-up-your-local-dev-environment"],
     previewImageLightUrl:
       "/img/guides/sync-tables-autoscaling-preview-light.png",
     previewImageDarkUrl: "/img/guides/sync-tables-autoscaling-preview-dark.png",
@@ -237,7 +237,7 @@ export const recipes: Recipe[] = [
       "Embed a Databricks AI/BI Genie chat interface so users can explore data through natural language. Configure a Genie space, wire up server and client plugins, declare app resources, and deploy.",
     tags: ["Genie", "AI/BI", "Natural Language", "Analytics"],
     services: ["Genie", "Databricks Apps"],
-    prerequisites: ["connect-workstation-to-databricks"],
+    prerequisites: ["set-up-your-local-dev-environment"],
     previewImageLightUrl:
       "/img/guides/genie-conversational-analytics-preview-light.png",
     previewImageDarkUrl:
@@ -250,7 +250,7 @@ export const recipes: Recipe[] = [
       "Create a Unity Catalog catalog backed by an external S3 bucket with storage credentials, external location, and a schema ready for lakehouse tables.",
     tags: ["Unity Catalog", "S3", "External Storage", "Setup"],
     services: ["Unity Catalog"],
-    prerequisites: ["connect-workstation-to-databricks"],
+    prerequisites: ["set-up-your-local-dev-environment"],
     previewImageLightUrl: "/img/guides/unity-catalog-setup-preview-light.png",
     previewImageDarkUrl: "/img/guides/unity-catalog-setup-preview-dark.png",
   },
@@ -279,7 +279,7 @@ export const recipes: Recipe[] = [
       "Analytics",
     ],
     services: ["Lakeflow Pipelines"],
-    prerequisites: ["connect-workstation-to-databricks"],
+    prerequisites: ["set-up-your-local-dev-environment"],
     previewImageLightUrl:
       "/img/guides/medallion-architecture-from-cdc-preview-light.png",
     previewImageDarkUrl:
@@ -330,7 +330,7 @@ export const recipes: Recipe[] = [
       "Add file upload, browsing, download, delete, file type validation, and CSV row preview to your Databricks app using Unity Catalog Volumes.",
     tags: ["Volumes", "Unity Catalog", "Files", "Upload", "CSV"],
     services: ["Unity Catalog"],
-    prerequisites: ["connect-workstation-to-databricks"],
+    prerequisites: ["set-up-your-local-dev-environment"],
     previewImageLightUrl: "/img/guides/volume-file-upload-preview-light.png",
     previewImageDarkUrl: "/img/guides/volume-file-upload-preview-dark.png",
   },
@@ -341,7 +341,7 @@ const recipeIndex: Record<string, Recipe> = Object.fromEntries(
 );
 
 export const recipesInOrder: Recipe[] = [
-  "connect-workstation-to-databricks",
+  "set-up-your-local-dev-environment",
   "spin-up-databricks-app",
   "onboard-your-coding-agent",
   "lakebase-create-instance",

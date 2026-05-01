@@ -22,7 +22,7 @@ export type AboutDevhubGlobalData = {
 };
 
 /** Mirrors api/content-markdown.ts so the browser-side composer ships the same recipe. */
-const LOCAL_BOOTSTRAP_SLUG = "connect-workstation-to-databricks";
+const LOCAL_BOOTSTRAP_SLUG = "set-up-your-local-dev-environment";
 
 function readMarkdownFile(siteDir: string, slug: string): string {
   return readFileSync(resolve(siteDir, "content", `${slug}.md`), "utf-8");

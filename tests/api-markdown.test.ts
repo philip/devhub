@@ -100,7 +100,7 @@ describe("/api/markdown about-devhub preamble policy", () => {
   test("recipe responses DO include the About DevHub preamble", () => {
     const result = call({
       section: "recipes",
-      slug: "connect-workstation-to-databricks",
+      slug: "set-up-your-local-dev-environment",
     });
     expect(result.statusCode).toBe(200);
     expect(result.body.startsWith("# About DevHub")).toBe(true);

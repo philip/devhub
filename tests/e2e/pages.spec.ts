@@ -23,8 +23,8 @@ const PAGES = [
     title: "SaaS Subscription Tracker",
   },
   {
-    path: "/templates/connect-workstation-to-databricks",
-    title: "Connect Your Workstation to Databricks",
+    path: "/templates/set-up-your-local-dev-environment",
+    title: "Set Up Your Local Dev Environment",
   },
   {
     path: "/templates/spin-up-databricks-app",

@@ -1,4 +1,4 @@
-## Connect Your Workstation to Databricks
+## Set Up Your Local Dev Environment
 
 Install the Databricks CLI, authenticate a profile, and verify the handshake. Every other DevHub recipe and template assumes this has already passed.
 

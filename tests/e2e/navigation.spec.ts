@@ -99,9 +99,7 @@ test.describe("home page link navigation", () => {
     expect(finalCopiedText).toContain(
       "# Verify your local Databricks dev environment",
     );
-    expect(finalCopiedText).toContain(
-      "## Connect Your Workstation to Databricks",
-    );
+    expect(finalCopiedText).toContain("## Set Up Your Local Dev Environment");
     expect(finalCopiedText).toContain("dev.databricks.com");
     expect(finalCopiedText).toContain("llms.txt");
   });
@@ -180,7 +178,7 @@ test.describe("templates page navigation", () => {
     { path: "/templates/app-with-lakebase", kind: "cookbook" },
     { path: "/templates/agentic-support-console", kind: "example" },
     { path: "/templates/saas-tracker", kind: "example" },
-    { path: "/templates/connect-workstation-to-databricks", kind: "recipe" },
+    { path: "/templates/set-up-your-local-dev-environment", kind: "recipe" },
   ];
 
   for (const { path, kind } of TEMPLATES) {

@@ -297,7 +297,7 @@ Slugs must be globally unique. The plugin throws at build time if any collision 
 
 ## References
 
-- Read `content/recipes/connect-workstation-to-databricks/content.md` for atomic-template structure and tone.
+- Read `content/recipes/set-up-your-local-dev-environment/content.md` for atomic-template structure and tone.
 - Read `content/examples/agentic-support-console/content.md` for example-template markdown style.
 - Read `src/lib/recipes/recipes.ts` for all type contracts (`Recipe`, `Cookbook`, `Example`).
 - Read `src/pages/templates/app-with-lakebase.tsx` for the cookbook composition pattern.

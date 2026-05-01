@@ -37,7 +37,7 @@ export type MarkdownSection =
  * Databricks dev environment" block. Must always be the smallest viable
  * prerequisite for downstream DevHub work — currently CLI install + auth.
  */
-const LOCAL_BOOTSTRAP_SLUG = "connect-workstation-to-databricks";
+const LOCAL_BOOTSTRAP_SLUG = "set-up-your-local-dev-environment";
 
 function validateSlug(slug: string): void {
   if (!slug || slug.trim() === "") {

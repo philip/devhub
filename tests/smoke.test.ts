@@ -134,7 +134,7 @@ describe("production build smoke tests", () => {
     expect(templatesBlock).not.toContain("/templates/hello-world-app.md");
     expect(templatesBlock).toContain("/templates/ai-chat-app.md");
     expect(templatesBlock).toContain(
-      "/templates/connect-workstation-to-databricks.md",
+      "/templates/set-up-your-local-dev-environment.md",
     );
     expect(templatesBlock).toContain("/templates/spin-up-databricks-app.md");
     expect(templatesBlock).toContain("/templates/onboard-your-coding-agent.md");
@@ -148,7 +148,7 @@ describe("production build smoke tests", () => {
     const expectedTemplates = [
       "/solutions.md",
       "/templates.md",
-      "/templates/connect-workstation-to-databricks.md",
+      "/templates/set-up-your-local-dev-environment.md",
       "/templates/spin-up-databricks-app.md",
       "/templates/onboard-your-coding-agent.md",
       "/templates/ai-chat-app.md",

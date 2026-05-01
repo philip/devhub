@@ -6,7 +6,7 @@ A streaming AI chat app on Databricks: a user sends a message, the server authen
 
 Work through the steps in the order below. Each one adds one concrete piece; by the end you have a deployable app.
 
-1. **Spin Up a Databricks App** — scaffold a fresh AppKit Databricks App with `databricks apps init` (the meta-prompt above already verifies the CLI profile via [Connect Your Workstation to Databricks](/templates/connect-workstation-to-databricks)).
+1. **Spin Up a Databricks App** — scaffold a fresh AppKit Databricks App with `databricks apps init` (the meta-prompt above already verifies the CLI profile via [Set Up Your Local Dev Environment](/templates/set-up-your-local-dev-environment)).
 2. **Query AI Gateway Endpoints** — pick a chat model (e.g. `databricks-gpt-5-4-mini`) and wire up `createOpenAI()` with the AI Gateway base URL.
 3. **Streaming AI Chat with Model Serving** — add the `/api/chat` route with `streamText()` and a `useChat` UI backed by `TextStreamChatTransport`.
 4. **Create a Lakebase Instance** — provision a managed Postgres project, branch, and endpoint; capture the connection values.

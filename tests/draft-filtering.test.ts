@@ -127,7 +127,7 @@ describe("templates index in API markdown", () => {
     expect(markdown).not.toContain("/templates/hello-world-app.md");
     expect(markdown).toContain("/templates/ai-chat-app.md");
     expect(markdown).toContain(
-      "/templates/connect-workstation-to-databricks.md",
+      "/templates/set-up-your-local-dev-environment.md",
     );
     expect(markdown).toContain("/templates/agentic-support-console.md");
   });

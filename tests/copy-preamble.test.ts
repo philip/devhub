@@ -13,7 +13,7 @@ const fixtureParts: AgentPromptParts = {
   intentRecipe: "# Recipe intent {{name}} ({{url}})",
   intentCookbook: "# Cookbook intent {{name}} ({{url}})",
   intentExample: "# Example intent {{name}} ({{url}})",
-  localBootstrap: "## Connect Your Workstation to Databricks\n\nbody",
+  localBootstrap: "## Set Up Your Local Dev Environment\n\nbody",
 };
 
 describe("substituteAboutDevhubLlmsUrl (legacy)", () => {
@@ -63,7 +63,7 @@ describe("composeAgentPrompt — hero", () => {
     expect(out).toContain("# Working with DevHub prompts");
     expect(out).toContain("# Hero intent");
     expect(out).toContain("# Verify your local Databricks dev environment");
-    expect(out).toContain("## Connect Your Workstation to Databricks");
+    expect(out).toContain("## Set Up Your Local Dev Environment");
 
     expect(out.split("\n---\n").length).toBe(4);
     expect(out).not.toContain("# The recipe");

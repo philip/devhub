@@ -87,7 +87,7 @@ describe("intent-hero.md content", () => {
 });
 
 describe("hero bootstrap prompt composition (matches /api/bootstrap-prompt)", () => {
-  test("composed hero prompt has the 4-block structure with connect-workstation inline", () => {
+  test("composed hero prompt has the 4-block structure with the local-dev-environment recipe inline", () => {
     const combined = composeAgentPrompt({
       parts: loadAgentPromptParts(),
       kind: "hero",
@@ -101,7 +101,7 @@ describe("hero bootstrap prompt composition (matches /api/bootstrap-prompt)", ()
       "# Verify your local Databricks dev environment",
     );
     const localBootstrapBodyIdx = combined.indexOf(
-      "## Connect Your Workstation to Databricks",
+      "## Set Up Your Local Dev Environment",
     );
 
     expect(aboutIdx).toBe(0);
@@ -125,12 +125,12 @@ describe("hero bootstrap prompt composition (matches /api/bootstrap-prompt)", ()
     expect(combined).toContain("https://dev.databricks.com/llms.txt");
   });
 
-  test("connect-workstation recipe is still resolvable on its own", () => {
+  test("set-up-your-local-dev-environment recipe is still resolvable on its own", () => {
     const recipe = getDetailMarkdown(
       "recipes",
-      "connect-workstation-to-databricks",
+      "set-up-your-local-dev-environment",
     );
-    expect(recipe).toContain("## Connect Your Workstation to Databricks");
+    expect(recipe).toContain("## Set Up Your Local Dev Environment");
     expect(recipe).toContain("databricks -v");
   });
 });
