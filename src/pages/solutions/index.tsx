@@ -11,9 +11,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { getAuthor } from "@/lib/solutions/authors";
 import {
   isLinkedSolution,
-  solutions,
+  solutionsByPublishedDesc,
   type LinkedSolution,
   type NativeSolution,
   type Solution,
@@ -54,6 +55,17 @@ function NativeSolutionCard({
 }: {
   solution: NativeSolution;
 }): ReactNode {
+  const formattedDate = new Date(
+    `${solution.publishedAt}T00:00:00Z`,
+  ).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    timeZone: "UTC",
+  });
+  const authorNames = solution.authors
+    .map((id) => getAuthor(id).name)
+    .join(", ");
   return (
     <Link to={`/solutions/${solution.id}`} className="no-underline">
       <Card className={cardClasses}>
@@ -64,6 +76,9 @@ function NativeSolutionCard({
           <CardTitle className="text-xl leading-tight font-medium text-black dark:text-white">
             {solution.title}
           </CardTitle>
+          <p className="m-0 mt-1 text-[12px] text-black/60 dark:text-white/60">
+            {authorNames} · DevHub · {formattedDate}
+          </p>
         </CardHeader>
         <CardContent className="flex-1 pt-0">
           <p className="m-0 text-[15px] leading-relaxed text-black/68 dark:text-white/68">
@@ -84,10 +99,18 @@ function LinkedSolutionCard({
   solution: LinkedSolution;
 }): ReactNode {
   const previewSrc = useBaseUrl(solution.previewImage);
+  const formattedDate = new Date(
+    `${solution.publishedAt}T00:00:00Z`,
+  ).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    timeZone: "UTC",
+  });
   const authorLine =
     solution.authors.length === 0
-      ? solution.source
-      : `${solution.authors.join(", ")} · ${solution.source}`;
+      ? `${solution.source} · ${formattedDate}`
+      : `${solution.authors.join(", ")} · ${solution.source} · ${formattedDate}`;
 
   return (
     <a
@@ -159,7 +182,7 @@ export default function SolutionsPage(): ReactNode {
             </p>
 
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {solutions.map((solution) => (
+              {solutionsByPublishedDesc.map((solution) => (
                 <SolutionCard key={solution.id} solution={solution} />
               ))}
             </div>

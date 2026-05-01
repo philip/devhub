@@ -8,9 +8,14 @@ type SolutionBase = {
 /**
  * Solution authored on DevHub: content lives in `content/solutions/<id>.md`
  * and is rendered into a generated route at /solutions/<id>.
+ *
+ * `authors` references author IDs in `authors.ts`. `publishedAt` is an
+ * ISO date (YYYY-MM-DD) used to sort the solutions index newest-first.
  */
 export type NativeSolution = SolutionBase & {
   type: "native";
+  authors: string[];
+  publishedAt: string;
 };
 
 /**
@@ -54,6 +59,8 @@ export const solutions: Solution[] = [
     description:
       "A new developer hub for building on Databricks: opinionated, copy-pasteable templates and agent-ready documentation for software engineers.",
     tags: ["Launch", "Developer Experience", "Agent-Led Development"],
+    authors: ["andre-landgraf"],
+    publishedAt: "2026-05-04",
   },
   {
     type: "linked",
@@ -130,3 +137,7 @@ export const nativeSolutions: NativeSolution[] =
   solutions.filter(isNativeSolution);
 export const linkedSolutions: LinkedSolution[] =
   solutions.filter(isLinkedSolution);
+
+export const solutionsByPublishedDesc: Solution[] = [...solutions].sort(
+  (a, b) => b.publishedAt.localeCompare(a.publishedAt),
+);

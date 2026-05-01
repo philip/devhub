@@ -47,19 +47,33 @@ describe("solutions registry", () => {
     }
   });
 
-  test("native solutions remain pure metadata", () => {
+  test("native solutions never carry linked-only metadata", () => {
     for (const solution of nativeSolutions) {
-      const linkedKeys: Array<keyof LinkedSolution> = [
+      const linkedOnlyKeys: Array<keyof LinkedSolution> = [
         "url",
         "source",
-        "authors",
-        "publishedAt",
         "previewImage",
         "previewImageAlt",
       ];
-      for (const key of linkedKeys) {
+      for (const key of linkedOnlyKeys) {
         expect(key in solution).toBe(false);
       }
+    }
+  });
+
+  test("native solutions carry author and date metadata", () => {
+    for (const solution of nativeSolutions) {
+      expect(solution.authors.length).toBeGreaterThan(0);
+      expect(solution.publishedAt).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    }
+  });
+
+  test("solutions are ordered newest-first when sorted by publishedAt", () => {
+    const dates = solutions.map((s) => s.publishedAt);
+    const sorted = [...dates].sort((a, b) => b.localeCompare(a));
+    expect(sorted).toEqual(sorted);
+    for (let i = 1; i < sorted.length; i++) {
+      expect(sorted[i - 1] >= sorted[i]).toBe(true);
     }
   });
 

@@ -7,7 +7,12 @@ import { AIExportMenu } from "@/components/ai-export-menu";
 import { Badge } from "@/components/ui/badge";
 import { RecipePre } from "@/components/cookbooks/recipe-code-block";
 import { RecipeToc } from "@/components/cookbooks/recipe-toc";
-import { solutions } from "@/lib/solutions/solutions";
+import {
+  AuthorBioCard,
+  SolutionByline,
+} from "@/components/solutions/author-bio";
+import { getAuthor } from "@/lib/solutions/authors";
+import { isNativeSolution, solutions } from "@/lib/solutions/solutions";
 import { useRawSolutionMarkdown } from "@/lib/use-raw-content-markdown";
 
 const recipeComponents = { pre: RecipePre };
@@ -29,6 +34,8 @@ export function SolutionDetail({
     throw new Error(`Solution not found: ${solutionId}`);
   }
   const permalink = `/solutions/${solution.id}`;
+  const native = isNativeSolution(solution) ? solution : null;
+  const authorEntries = native ? native.authors.map(getAuthor) : [];
 
   return (
     <Layout title={solution.title} description={solution.description}>
@@ -61,7 +68,7 @@ export function SolutionDetail({
                 <p className="mb-4 max-w-2xl text-base leading-relaxed text-muted-foreground">
                   {solution.description}
                 </p>
-                <div className="mb-8 flex flex-wrap gap-2">
+                <div className="mb-6 flex flex-wrap gap-2">
                   {solution.tags.map((tag) => (
                     <Badge
                       key={tag}
@@ -72,6 +79,13 @@ export function SolutionDetail({
                     </Badge>
                   ))}
                 </div>
+
+                {native ? (
+                  <SolutionByline
+                    authors={authorEntries}
+                    publishedAt={native.publishedAt}
+                  />
+                ) : null}
 
                 <div className="mb-12 overflow-hidden rounded-xl bg-gradient-to-br from-[#071a21] to-[#0f2a34]">
                   <img
@@ -87,6 +101,10 @@ export function SolutionDetail({
                     <article className="prose-solution">{children}</article>
                   </MDXProvider>
                 </div>
+
+                {authorEntries.map((author) => (
+                  <AuthorBioCard key={author.id} author={author} />
+                ))}
               </div>
 
               <div className="hidden lg:block">
