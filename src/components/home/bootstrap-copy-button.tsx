@@ -67,6 +67,24 @@ type BootstrapCopyButtonProps = {
 };
 
 /**
+ * Wait this long before swapping the button label to the spinner. Most
+ * fetch+clipboard round-trips finish well under 400ms, so showing a spinner
+ * immediately would just produce a flicker between idle → copying → copied.
+ */
+const SPINNER_DELAY_MS = 400;
+
+/**
+ * Once the spinner is shown, keep it visible for at least this long before
+ * transitioning to the success/error label. Without this guarantee a slow
+ * response that finishes just after 400ms would still flicker.
+ */
+const SPINNER_MIN_VISIBLE_MS = 800;
+
+function wait(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
  * Visible button label for each state. All four are stacked in a single CSS
  * Grid cell so the button auto-sizes to the longest one and its width never
  * changes when the state flips. Inactive states use `visibility: hidden`
@@ -107,26 +125,49 @@ export function BootstrapCopyButton({
 }: BootstrapCopyButtonProps): ReactNode {
   const [copyState, setCopyState] = useState<CopyState>("idle");
   const resetTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const spinnerDelayTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const inFlightRef = useRef(false);
 
   useEffect(
     () => () => {
       clearTimeout(resetTimerRef.current);
+      clearTimeout(spinnerDelayTimerRef.current);
     },
     [],
   );
 
   const handleCopy = useCallback(async () => {
-    setCopyState("copying");
+    if (inFlightRef.current) return;
+    inFlightRef.current = true;
+
+    let spinnerShownAt: number | null = null;
+    clearTimeout(spinnerDelayTimerRef.current);
+    spinnerDelayTimerRef.current = setTimeout(() => {
+      spinnerShownAt = Date.now();
+      setCopyState("copying");
+    }, SPINNER_DELAY_MS);
+
+    const settle = async (next: "copied" | "error") => {
+      clearTimeout(spinnerDelayTimerRef.current);
+      if (spinnerShownAt !== null) {
+        const elapsed = Date.now() - spinnerShownAt;
+        const remaining = SPINNER_MIN_VISIBLE_MS - elapsed;
+        if (remaining > 0) await wait(remaining);
+      }
+      setCopyState(next);
+    };
+
     try {
       const bootstrapPrompt = await fetchBootstrapPrompt();
       const copied = await copyTextToClipboard(bootstrapPrompt);
       if (!copied) throw new Error("Clipboard copy failed");
 
-      setCopyState("copied");
+      await settle("copied");
       track("copy_bootstrap_prompt", { source });
     } catch {
-      setCopyState("error");
+      await settle("error");
     } finally {
+      inFlightRef.current = false;
       clearTimeout(resetTimerRef.current);
       resetTimerRef.current = setTimeout(() => setCopyState("idle"), 2500);
     }
