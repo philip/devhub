@@ -89,7 +89,7 @@ describe("production build smoke tests", () => {
   test("llms.txt links use .md suffix", () => {
     const text = readBuildFile("llms.txt");
     expect(text).toContain("/docs/start-here.md");
-    expect(text).toContain("/templates/hello-world-app.md");
+    expect(text).toContain("/templates/ai-chat-app.md");
     expect(text).toContain("/solutions.md");
   });
 
@@ -131,18 +131,15 @@ describe("production build smoke tests", () => {
     expect(solutionsIdx).toBeGreaterThan(templatesIdx);
     const templatesBlock = text.slice(templatesIdx, solutionsIdx);
 
-    expect(templatesBlock).toContain("/templates/hello-world-app.md");
+    expect(templatesBlock).not.toContain("/templates/hello-world-app.md");
     expect(templatesBlock).toContain("/templates/ai-chat-app.md");
     expect(templatesBlock).toContain(
-      "/templates/databricks-local-bootstrap.md",
+      "/templates/connect-workstation-to-databricks.md",
     );
+    expect(templatesBlock).toContain("/templates/spin-up-databricks-app.md");
+    expect(templatesBlock).toContain("/templates/onboard-your-coding-agent.md");
     expect(templatesBlock).toContain("/templates/foundation-models-api.md");
-    if (
-      process.env.EXAMPLES_FEATURE === "true" ||
-      process.env.EXAMPLES_FEATURE === "1"
-    ) {
-      expect(templatesBlock).toContain("/templates/agentic-support-console.md");
-    }
+    expect(templatesBlock).toContain("/templates/agentic-support-console.md");
   });
 
   test("llms.txt links to all resource guides", () => {
@@ -151,7 +148,9 @@ describe("production build smoke tests", () => {
     const expectedTemplates = [
       "/solutions.md",
       "/templates.md",
-      "/templates/hello-world-app.md",
+      "/templates/connect-workstation-to-databricks.md",
+      "/templates/spin-up-databricks-app.md",
+      "/templates/onboard-your-coding-agent.md",
       "/templates/ai-chat-app.md",
       "/templates/app-with-lakebase.md",
       "/templates/genie-analytics-app.md",

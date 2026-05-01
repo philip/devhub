@@ -1,28 +1,38 @@
 import { usePluginData } from "@docusaurus/useGlobalData";
 import type { AboutDevhubGlobalData } from "../../plugins/about-devhub";
-import { substituteAboutDevhubLlmsUrl } from "@/lib/copy-preamble";
+import {
+  composeAgentPrompt,
+  type AgentPromptKind,
+  type AgentPromptParts,
+} from "@/lib/copy-preamble";
 
-/** Reads the About DevHub markdown body from build-time plugin global data. */
-export function useAboutDevhubBody(): string {
+/** Reads all preamble blocks from build-time plugin global data. */
+export function useAgentPromptParts(): AgentPromptParts {
   const data = usePluginData(
     "docusaurus-plugin-about-devhub",
   ) as AboutDevhubGlobalData;
-  return data.markdown;
+  return data.parts;
 }
 
-/** Pure: substitutes the canonical llms.txt URL with the caller's origin. */
-export function buildAboutDevhubForBrowserCopy(
-  aboutBody: string,
-  llmsUrl: string,
-): string {
-  return substituteAboutDevhubLlmsUrl(aboutBody, llmsUrl);
-}
-
-/** About DevHub block, horizontal rule, then the rest (same shape as API copy exports). */
-export function buildMarkdownWithAboutDevhubLeadIn(
-  aboutBody: string,
-  llmsUrl: string,
-  bodyAfterSeparator: string,
-): string {
-  return `${buildAboutDevhubForBrowserCopy(aboutBody, llmsUrl).trimEnd()}\n\n---\n\n${bodyAfterSeparator}`;
+/**
+ * Build the final "Copy prompt" markdown payload for a template detail page.
+ * Used by recipe / cookbook / example detail pages — doc and solution pages
+ * skip this entirely (they emit raw content with frontmatter only).
+ */
+export function buildTemplateAgentMarkdown(input: {
+  parts: AgentPromptParts;
+  kind: Exclude<AgentPromptKind, "hero">;
+  templateName: string;
+  templateUrl: string;
+  templateBody: string;
+  siteOrigin: string;
+}): string {
+  return composeAgentPrompt({
+    parts: input.parts,
+    kind: input.kind,
+    siteOrigin: input.siteOrigin,
+    templateName: input.templateName,
+    templateUrl: input.templateUrl,
+    templateBody: input.templateBody,
+  });
 }

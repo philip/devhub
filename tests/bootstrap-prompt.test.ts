@@ -1,75 +1,136 @@
 import { readFileSync } from "fs";
 import { resolve } from "path";
 import { describe, expect, test } from "vitest";
-import { getDetailMarkdown } from "../api/content-markdown";
+import {
+  getDetailMarkdown,
+  loadAgentPromptParts,
+} from "../api/content-markdown";
+import { composeAgentPrompt } from "../src/lib/copy-preamble";
 
 const ABOUT_PATH = resolve(__dirname, "..", "content", "about-devhub.md");
+const GUIDELINES_PATH = resolve(
+  __dirname,
+  "..",
+  "content",
+  "dev-guidelines.md",
+);
+const HERO_INTENT_PATH = resolve(__dirname, "..", "content", "intent-hero.md");
 
-function readAboutDevhub(): string {
-  return readFileSync(ABOUT_PATH, "utf-8");
+function read(path: string): string {
+  return readFileSync(path, "utf-8");
 }
 
-describe("about-devhub.md content", () => {
+describe("about-devhub.md content (origin block only)", () => {
   test("file exists and is non-empty", () => {
-    const about = readAboutDevhub();
+    const about = read(ABOUT_PATH);
     expect(about.length).toBeGreaterThan(0);
   });
 
   test("identifies DevHub and dev.databricks.com", () => {
-    const about = readAboutDevhub();
+    const about = read(ABOUT_PATH);
     expect(about).toContain("dev.databricks.com");
     expect(about).toContain("DevHub");
   });
 
-  test("links to llms.txt", () => {
-    const about = readAboutDevhub();
+  test("links to llms.txt and the GitHub repo", () => {
+    const about = read(ABOUT_PATH);
     expect(about).toContain("https://dev.databricks.com/llms.txt");
+    expect(about).toContain("https://github.com/databricks/devhub");
   });
 
-  test("instructs agent to understand developer intent", () => {
-    const about = readAboutDevhub();
-    expect(about).toContain("bootstrapping a new project");
-    expect(about).toContain("existing codebase");
-  });
-
-  test("instructs agent to ask about reuse vs provision", () => {
-    const about = readAboutDevhub();
-    expect(about).toContain("create new resources");
-    expect(about).toContain("reuse existing");
+  test("does NOT include workflow guidance (now lives in dev-guidelines.md)", () => {
+    const about = read(ABOUT_PATH);
+    expect(about).not.toContain("Working with DevHub prompts");
+    expect(about).not.toContain("Asking questions");
+    expect(about).not.toContain("Make it look great");
   });
 });
 
-describe("bootstrap prompt composition", () => {
-  test("about-devhub content appears before local bootstrap recipe", () => {
-    const about = readAboutDevhub();
-    const recipe = getDetailMarkdown("recipes", "databricks-local-bootstrap");
-
-    expect(about).toContain("# About DevHub");
-    expect(recipe).toContain("## Databricks Local App Development Bootstrap");
+describe("dev-guidelines.md content (workflow + asking questions + design)", () => {
+  test("instructs the agent to ask before creating vs reusing resources", () => {
+    const guidelines = read(GUIDELINES_PATH);
+    expect(guidelines).toContain("create new resources");
+    expect(guidelines).toContain("reuse existing");
   });
 
-  test("combined prompt has about section then recipe", () => {
-    const about = readAboutDevhub();
-    const recipe = getDetailMarkdown("recipes", "databricks-local-bootstrap");
-    const combined = `${about.trimEnd()}\n\n---\n\n${recipe.trimEnd()}`;
+  test("includes the asking-questions rules", () => {
+    const guidelines = read(GUIDELINES_PATH);
+    expect(guidelines).toContain("One question at a time");
+    expect(guidelines).toContain("Not sure");
+  });
+
+  test("includes the make-it-look-great design defaults", () => {
+    const guidelines = read(GUIDELINES_PATH);
+    expect(guidelines).toContain("Make it look great");
+    expect(guidelines).toContain("shadcn/ui");
+  });
+});
+
+describe("intent-hero.md content", () => {
+  test("frames the user as someone who needs a build wizard", () => {
+    const hero = read(HERO_INTENT_PATH);
+    expect(hero).toContain("Copy prompt for your agent");
+    expect(hero).toContain("build wizard");
+  });
+
+  test("links to a curated set of templates and the llms.txt catalog", () => {
+    const hero = read(HERO_INTENT_PATH);
+    expect(hero).toContain("/templates/app-with-lakebase.md");
+    expect(hero).toContain("/templates/ai-chat-app.md");
+    expect(hero).toContain("https://dev.databricks.com/llms.txt");
+  });
+
+  test("does NOT link to /templates/hello-world-app.md (cookbook removed; bootstrap is in the meta-prompt)", () => {
+    const hero = read(HERO_INTENT_PATH);
+    expect(hero).not.toContain("/templates/hello-world-app");
+  });
+});
+
+describe("hero bootstrap prompt composition (matches /api/bootstrap-prompt)", () => {
+  test("composed hero prompt has the 4-block structure with connect-workstation inline", () => {
+    const combined = composeAgentPrompt({
+      parts: loadAgentPromptParts(),
+      kind: "hero",
+      siteOrigin: "https://dev.databricks.com",
+    });
 
     const aboutIdx = combined.indexOf("# About DevHub");
-    const recipeIdx = combined.indexOf(
-      "## Databricks Local App Development Bootstrap",
+    const guidelinesIdx = combined.indexOf("# Working with DevHub prompts");
+    const intentIdx = combined.indexOf("# What the user just did");
+    const bootstrapIdx = combined.indexOf(
+      "# Verify your local Databricks dev environment",
     );
-    expect(aboutIdx).toBeLessThan(recipeIdx);
-    expect(combined).toContain("---");
+    const localBootstrapBodyIdx = combined.indexOf(
+      "## Connect Your Workstation to Databricks",
+    );
+
+    expect(aboutIdx).toBe(0);
+    expect(guidelinesIdx).toBeGreaterThan(aboutIdx);
+    expect(intentIdx).toBeGreaterThan(guidelinesIdx);
+    expect(bootstrapIdx).toBeGreaterThan(intentIdx);
+    expect(localBootstrapBodyIdx).toBeGreaterThan(bootstrapIdx);
+    // Hero has no trailing template body.
+    expect(combined).not.toContain("# The recipe the user copied");
+    expect(combined).not.toContain("# The cookbook the user copied");
+    expect(combined).not.toContain("# The example the user copied");
   });
 
-  test("combined prompt includes key sections from both", () => {
-    const about = readAboutDevhub();
-    const recipe = getDetailMarkdown("recipes", "databricks-local-bootstrap");
-    const combined = `${about.trimEnd()}\n\n---\n\n${recipe.trimEnd()}`;
-
-    expect(combined).toContain("dev.databricks.com");
-    expect(combined).toContain("llms.txt");
-    expect(combined).toContain("bootstrapping a new project");
+  test("composed hero prompt includes recipe content (databricks -v) and llms.txt URL", () => {
+    const combined = composeAgentPrompt({
+      parts: loadAgentPromptParts(),
+      kind: "hero",
+      siteOrigin: "https://dev.databricks.com",
+    });
     expect(combined).toContain("databricks -v");
-    expect(combined).toContain("databricks apps init");
+    expect(combined).toContain("https://dev.databricks.com/llms.txt");
+  });
+
+  test("connect-workstation recipe is still resolvable on its own", () => {
+    const recipe = getDetailMarkdown(
+      "recipes",
+      "connect-workstation-to-databricks",
+    );
+    expect(recipe).toContain("## Connect Your Workstation to Databricks");
+    expect(recipe).toContain("databricks -v");
   });
 });

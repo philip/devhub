@@ -13,19 +13,6 @@ export type ExampleMarkdownOptions = {
 
 export type ExampleSections = ContentSections;
 
-/** Outcome bullets shown in the Get started card (agent-first copy). */
-export const EXAMPLE_AGENT_OUTCOME_BULLETS = [
-  "Prompt the agent to clone the DevHub repo and open this example's template/README.md",
-  "Prompt the agent to follow that README for provisioning, seeding, pipelines, and deploy",
-] as const;
-
-/** Outcome bullets for init-style examples consumed via `databricks apps init`. */
-export const EXAMPLE_AGENT_OUTCOME_BULLETS_INIT = [
-  "Prompt the agent to verify Databricks CLI auth and provision any required resources (e.g. a Lakebase Postgres project)",
-  "Prompt the agent to scaffold the project with `databricks apps init` and `cd` into the generated directory",
-  "Prompt the agent to fill in any remaining `.env` values, then run `npm install && npm run deploy`",
-] as const;
-
 function isInitCommand(initCommand: string): boolean {
   return initCommand.trimStart().startsWith("databricks apps init");
 }

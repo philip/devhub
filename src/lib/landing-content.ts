@@ -20,11 +20,8 @@ export type LandingTemplateItem = {
 
 export function buildLandingTemplates(
   includeDrafts: boolean,
-  includeExamples: boolean,
 ): LandingTemplateItem[] {
-  const publishedExamples = includeExamples
-    ? filterPublished(examples, includeDrafts)
-    : [];
+  const publishedExamples = filterPublished(examples, includeDrafts);
   const publishedCookbooks = filterPublished(cookbooks, includeDrafts);
   const publishedCookbookIds = new Set(publishedCookbooks.map((c) => c.id));
   const publishedPreviewItems = cookbookPreviewItems.filter((c) =>

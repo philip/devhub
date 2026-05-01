@@ -1,7 +1,8 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import {
-  prependLlmsReference,
+  composeTemplateAgentPrompt,
   getDetailMarkdown,
+  resolveTemplateKind,
   type MarkdownSection,
 } from "./content-markdown";
 import { resolveSiteUrlForRequest } from "../src/lib/site-url";
@@ -39,17 +40,23 @@ export default function handler(req: VercelRequest, res: VercelResponse): void {
   try {
     const parsed = parseSection(req.query.section);
     const markdown = getDetailMarkdown(parsed, slug);
-    // The About DevHub preamble (with llms.txt site index) is meant for
-    // copy-paste prompts that ask an agent to BUILD something — i.e. our
-    // resources: templates, recipes, examples, and the templates index.
-    // Reference docs and solution narratives are linked from those prompts,
-    // so adding the same preamble there would just double the prelude when
-    // an agent fetches them as a follow-up. Keep docs and solutions raw.
-    const includeAboutPreamble =
-      parsed === "templates" || parsed === "recipes" || parsed === "examples";
+
+    // Only template-style pages with a concrete slug get wrapped in the
+    // copy-prompt preamble (about + guidelines + intent + local-bootstrap).
+    // Docs and solutions are reference material linked from the prompts;
+    // wrapping them too would just double the prelude when an agent fetches
+    // them as a follow-up. Catalog index pages (`/templates.md`,
+    // `/solutions.md`) have no copy button — they are agent-discoverable
+    // tables of contents, not prompts, so they stay raw.
+    const kindInfo = resolveTemplateKind(parsed, slug);
     const siteUrl = resolveSiteUrlForRequest(req.headers.host);
-    const withRef = includeAboutPreamble
-      ? prependLlmsReference(markdown, siteUrl)
+    const body = kindInfo
+      ? composeTemplateAgentPrompt({
+          body: markdown,
+          section: parsed,
+          slug,
+          siteOrigin: siteUrl,
+        })
       : markdown;
 
     const filename = slug ? `${slug.replace(/\//g, "-")}.md` : `${parsed}.md`;
@@ -58,7 +65,7 @@ export default function handler(req: VercelRequest, res: VercelResponse): void {
     res.setHeader("Vary", "Accept");
     res.setHeader("X-Robots-Tag", "noindex");
     res.setHeader("Content-Disposition", `inline; filename="${filename}"`);
-    res.status(200).send(withRef);
+    res.status(200).send(body);
   } catch {
     res.setHeader("Content-Type", "text/markdown; charset=utf-8");
     res.setHeader("Vary", "Accept");

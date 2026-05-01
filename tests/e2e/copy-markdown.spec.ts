@@ -47,13 +47,13 @@ test.describe("copy markdown exports raw markdown on recipe pages", () => {
     page,
   }) => {
     await setupClipboardMock(page);
-    await page.goto("/templates/databricks-local-bootstrap");
+    await page.goto("/templates/connect-workstation-to-databricks");
 
     await clickCopyPromptAndWaitForToast(page);
 
     const copied = await getCopiedText(page);
     expect(copied).toContain("# About DevHub");
-    expect(copied).toContain("## Databricks Local App Development Bootstrap");
+    expect(copied).toContain("## Connect Your Workstation to Databricks");
     expect(copied).toContain("```bash");
     expect(copied).toContain("databricks -v");
     expect(copied).toContain("llms.txt");
@@ -61,23 +61,30 @@ test.describe("copy markdown exports raw markdown on recipe pages", () => {
 });
 
 test.describe("copy markdown exports raw markdown on template pages", () => {
-  test("template page copies concatenated recipe markdown", async ({
+  test("cookbook page wraps the body with the meta-prompt and injects local-bootstrap", async ({
     page,
   }) => {
     await setupClipboardMock(page);
-    await page.goto("/templates/hello-world-app");
+    await page.goto("/templates/ai-chat-app");
 
     await clickCopyPromptAndWaitForToast(page);
 
     const copied = await getCopiedText(page);
+    // Meta-prompt blocks are present:
     expect(copied).toContain("# About DevHub");
-    expect(copied).toContain("## Databricks Local App Development Bootstrap");
+    expect(copied).toContain("# Working with DevHub prompts");
+    expect(copied).toContain("# What the user just did");
+    expect(copied).toContain("# Verify your local Databricks dev environment");
+    expect(copied).toContain("## Connect Your Workstation to Databricks");
+    // Cookbook body comes after the meta-prompt, with its own frontmatter:
+    expect(copied).toContain('title: "AI Chat App"');
+    expect(copied).toContain("# The cookbook the user copied");
     expect(copied).toContain("```bash");
-    expect(copied).toContain('title: "Hello World App"');
-    expect(copied).toContain("llms.txt");
   });
 
-  test("multi-recipe template includes all recipes", async ({ page }) => {
+  test("multi-recipe cookbook body no longer embeds the connect-workstation recipe", async ({
+    page,
+  }) => {
     await setupClipboardMock(page);
     await page.goto("/templates/app-with-lakebase");
 
@@ -85,7 +92,12 @@ test.describe("copy markdown exports raw markdown on template pages", () => {
 
     const copied = await getCopiedText(page);
     expect(copied).toContain("# About DevHub");
-    expect(copied).toContain("## Databricks Local App Development Bootstrap");
+    // The connect-workstation recipe heading is present exactly once — injected
+    // by the meta-prompt, NOT duplicated inside the cookbook body.
+    const bootstrapHeadings = copied.match(
+      /^## Connect Your Workstation to Databricks$/gm,
+    );
+    expect(bootstrapHeadings?.length).toBe(1);
     expect(copied).toContain("## Lakebase Data Persistence");
     expect(copied).toContain("---");
   });
@@ -119,36 +131,7 @@ test.describe("copy markdown exports raw markdown on example pages", () => {
 
   // Full `npm run test` runs `build` before Playwright; if you run `test:e2e`
   // alone, run `npm run build` first so `docusaurus serve` is not stale.
-  test("Get started: page shows agent-first copy and manual steps", async ({
-    page,
-  }) => {
-    await page.goto("/templates/agentic-support-console");
-
-    await expect(
-      page.getByRole("heading", { name: "Get started", exact: true }),
-    ).toBeVisible();
-    await expect(
-      page.getByRole("button", { name: "Copy prompt" }).first(),
-    ).toBeVisible();
-    await expect(page.getByText("Paste into your coding agent")).toBeVisible();
-    await expect(
-      page.getByText(
-        "Prompt the agent to clone the DevHub repo and open this example's template/README.md",
-      ),
-    ).toBeVisible();
-    await expect(
-      page.locator("section.example-get-started").getByText("CLI", {
-        exact: true,
-      }),
-    ).toBeVisible();
-    await expect(
-      page.getByText(
-        /git clone --depth 1 https:\/\/github\.com\/databricks\/devhub\.git/,
-      ),
-    ).toBeVisible();
-  });
-
-  test("Get started: Copy prompt includes clone bash block and included templates preamble", async ({
+  test("Banner Copy prompt includes clone bash block and included templates preamble", async ({
     page,
   }) => {
     await setupClipboardMock(page);
@@ -174,43 +157,13 @@ test.describe("copy markdown exports raw markdown on example pages", () => {
     );
   });
 
-  test("Get started: banner and Get-started Copy prompt buttons produce identical markdown", async ({
+  test("Banner Copy prompt copies full prompt with bash and ### substeps", async ({
     page,
   }) => {
     await setupClipboardMock(page);
     await page.goto("/templates/agentic-support-console");
 
-    await page.getByRole("button", { name: "Copy prompt" }).first().click();
-    await expect(page.getByText("Prompt copied")).toBeVisible({
-      timeout: 5000,
-    });
-    const fromBanner = await getCopiedText(page);
-
-    await page
-      .locator("section.example-get-started")
-      .getByRole("button", { name: "Copy prompt" })
-      .click();
-    await expect(page.getByText("Prompt copied")).toBeVisible({
-      timeout: 5000,
-    });
-    const fromGetStarted = await getCopiedText(page);
-
-    expect(fromBanner).toBe(fromGetStarted);
-  });
-
-  test("Get started: Copy prompt copies full prompt with bash and ### substeps", async ({
-    page,
-  }) => {
-    await setupClipboardMock(page);
-    await page.goto("/templates/agentic-support-console");
-
-    await page
-      .locator("section.example-get-started")
-      .getByRole("button", { name: "Copy prompt" })
-      .click();
-    await expect(page.getByText("Prompt copied")).toBeVisible({
-      timeout: 5000,
-    });
+    await clickCopyPromptAndWaitForToast(page);
 
     const copied = await getCopiedText(page);
     expect(copied).toContain("# About DevHub");

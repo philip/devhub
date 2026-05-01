@@ -18,7 +18,7 @@ test.describe("templates page search", () => {
 
     await page.getByRole("searchbox").fill("genie");
     await expect(
-      page.getByText(`7 of ${TEMPLATE_COUNT} templates`),
+      page.getByText(`8 of ${TEMPLATE_COUNT} templates`),
     ).toBeVisible();
     await expect(
       page.locator('a[href="/templates/inventory-intelligence"]'),
@@ -31,6 +31,9 @@ test.describe("templates page search", () => {
     ).toBeVisible();
     await expect(
       page.locator('a[href="/templates/content-moderator"]'),
+    ).toBeVisible();
+    await expect(
+      page.locator('a[href="/templates/vacation-rentals"]'),
     ).toBeVisible();
     await expect(
       page.locator('a[href="/templates/genie-analytics-app"]'),
@@ -66,31 +69,6 @@ test.describe("templates page service filter", () => {
     ).toBeVisible();
     await expect(
       page.locator('a[href="/templates/query-ai-gateway-endpoints"]'),
-    ).toBeHidden();
-  });
-});
-
-test.describe("templates page type filter", () => {
-  test("Example apps filter shows only examples, Walkthroughs filter hides examples", async ({
-    page,
-  }) => {
-    await page.goto("/templates");
-
-    await page.getByRole("checkbox", { name: "Example apps" }).check();
-    await expect(
-      page.locator('a[href="/templates/agentic-support-console"]'),
-    ).toBeVisible();
-    await expect(
-      page.locator('a[href="/templates/hello-world-app"]'),
-    ).toBeHidden();
-
-    await page.getByRole("checkbox", { name: "Example apps" }).uncheck();
-    await page.getByRole("checkbox", { name: "Walkthroughs" }).check();
-    await expect(
-      page.locator('a[href="/templates/databricks-local-bootstrap"]'),
-    ).toBeVisible();
-    await expect(
-      page.locator('a[href="/templates/agentic-support-console"]'),
     ).toBeHidden();
   });
 });

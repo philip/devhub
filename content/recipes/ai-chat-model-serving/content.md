@@ -6,7 +6,7 @@ Build a streaming AI chat experience in a Databricks App using Vercel AI SDK wit
 
 Complete these templates before adding chat:
 
-- [`Databricks Local Bootstrap`](/templates/hello-world-app#databricks-local-bootstrap)
+- [`Connect Your Workstation to Databricks`](/templates/connect-workstation-to-databricks)
 - [`Query AI Gateway Endpoints`](/templates/ai-chat-app#query-ai-gateway-endpoints)
 
 :::tip[Deploy before local development]

@@ -568,7 +568,7 @@ const steps: WizardStep[] = [
     action: (
       <BootstrapCopyButton
         source="wizard"
-        className="mt-5 h-10 rounded-full px-5 text-sm font-medium shadow-[0_8px_24px_-8px_rgba(255,54,33,0.5)] transition-transform hover:-translate-y-0.5"
+        className="mt-5 h-10 rounded-full px-5 text-sm font-medium shadow-[0_8px_24px_-8px_rgba(255,54,33,0.5)] transition-shadow duration-200 ease-out hover:shadow-[0_12px_30px_-8px_rgba(255,54,33,0.65)] active:shadow-[0_3px_10px_-4px_rgba(255,54,33,0.5)]"
       />
     ),
   },

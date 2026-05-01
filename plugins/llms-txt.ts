@@ -9,7 +9,7 @@ import {
   filterPublished,
 } from "../src/lib/recipes/recipes";
 import { expandMdxImports } from "../src/lib/expand-mdx";
-import { showDrafts, examplesEnabled } from "../src/lib/feature-flags-server";
+import { showDrafts } from "../src/lib/feature-flags-server";
 
 type Section = {
   title: string;
@@ -137,12 +137,9 @@ function readDoc(
 
 function generateLlmsTxt(baseUrl: string, docsDir: string): string {
   const includeDrafts = showDrafts();
-  const includeExamples = examplesEnabled();
   const publishedCookbooks = filterPublished(cookbooks, includeDrafts);
   const publishedRecipes = filterPublished(recipesInOrder, includeDrafts);
-  const publishedExamples = includeExamples
-    ? filterPublished(examples, includeDrafts)
-    : [];
+  const publishedExamples = filterPublished(examples, includeDrafts);
 
   const allSections: Section[] = SIDEBAR_SECTIONS.map((section) => ({
     title: section.title,

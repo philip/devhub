@@ -1,6 +1,6 @@
 ## Agentic Support Console
 
-This example brings together the full Databricks developer stack into a single operational data application: an AI-powered support console where every customer message is automatically triaged by an LLM, and support agents review, approve, or override the suggestion from a purpose-built internal tool.
+This template brings together the full Databricks developer stack into a single operational data application: an AI-powered support console where every customer message is automatically triaged by an LLM, and support agents review, approve, or override the suggestion from a purpose-built internal tool.
 
 ### Data Flow
 
@@ -17,7 +17,7 @@ Customer interactions flow from your application's OLTP database (Lakebase Postg
 
 Provisioning (manual steps and SQL), seeding, pipeline deploys, reverse sync, and app deploy are documented in the repository’s **`template/README.md`** alongside the code.
 
-To make this example your own:
+To make this template your own:
 
 - **Catalog**: Set the `catalog` variable in each pipeline's `databricks.yml` to your Unity Catalog catalog name.
 - **Lakebase**: Point the app's `databricks.yml` at your own Lakebase project, branch, and database.

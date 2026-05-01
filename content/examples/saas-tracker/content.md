@@ -1,6 +1,6 @@
 ## SaaS Subscription Tracker
 
-This example demonstrates a straightforward internal CRUD tool built on Databricks: a SaaS subscription tracker where teams log the tools they use, who owns each subscription, what it costs, and when it renews. A Genie space provides self-serve analytics over the subscription data.
+This template demonstrates a straightforward internal CRUD tool built on Databricks: a SaaS subscription tracker where teams log the tools they use, who owns each subscription, what it costs, and when it renews. A Genie space provides self-serve analytics over the subscription data.
 
 ### Data Flow
 
@@ -15,7 +15,7 @@ All subscription data lives in a single Lakebase Postgres table and is served di
 
 Setup and provisioning are documented in the repository’s **`template/README.md`**.
 
-To make this example your own:
+To make this template your own:
 
 - **Lakebase**: Point the app's `databricks.yml` at your own Lakebase project, branch, and database.
 - **SQL Warehouse**: Set the warehouse ID for the analytics queries.

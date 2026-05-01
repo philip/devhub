@@ -100,7 +100,7 @@ describe("/api/markdown about-devhub preamble policy", () => {
   test("recipe responses DO include the About DevHub preamble", () => {
     const result = call({
       section: "recipes",
-      slug: "databricks-local-bootstrap",
+      slug: "connect-workstation-to-databricks",
     });
     expect(result.statusCode).toBe(200);
     expect(result.body.startsWith("# About DevHub")).toBe(true);
@@ -108,10 +108,10 @@ describe("/api/markdown about-devhub preamble policy", () => {
   });
 
   test("template responses DO include the About DevHub preamble", () => {
-    const result = call({ section: "templates", slug: "hello-world-app" });
+    const result = call({ section: "templates", slug: "ai-chat-app" });
     expect(result.statusCode).toBe(200);
     expect(result.body.startsWith("# About DevHub")).toBe(true);
-    expect(result.body).toContain("# Hello World App");
+    expect(result.body).toContain("# AI Chat App");
   });
 
   test("example responses DO include the About DevHub preamble", () => {
@@ -124,16 +124,19 @@ describe("/api/markdown about-devhub preamble policy", () => {
     expect(result.body).toContain("## Agentic Support Console");
   });
 
-  test("templates index DOES include the preamble", () => {
+  test("templates index does NOT include the preamble", () => {
     const result = call({ section: "templates", slug: "" });
     expect(result.statusCode).toBe(200);
-    expect(result.body.startsWith("# About DevHub")).toBe(true);
+    expect(result.body).not.toContain("# About DevHub");
+    expect(result.body).toContain("# Templates");
+    expect(result.body).toContain("/templates/ai-chat-app.md");
+    expect(result.body).not.toContain("/templates/hello-world-app.md");
   });
 
   test("preamble URL reflects the request Host header", () => {
     const result = call({
       section: "templates",
-      slug: "hello-world-app",
+      slug: "ai-chat-app",
       host: "localhost:3001",
     });
     expect(result.body).toContain("http://localhost:3001/llms.txt");

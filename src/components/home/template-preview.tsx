@@ -50,12 +50,8 @@ function TemplateCarouselCard({
 }
 
 export function TemplatePreview(): ReactNode {
-  const { showDrafts: includeDrafts, examplesEnabled: includeExamples } =
-    useFeatureFlags();
-  const landingTemplates = buildLandingTemplates(
-    includeDrafts,
-    includeExamples,
-  );
+  const { showDrafts: includeDrafts } = useFeatureFlags();
+  const landingTemplates = buildLandingTemplates(includeDrafts);
 
   return (
     <section className="bg-db-oat-medium py-16 dark:bg-black md:py-20">

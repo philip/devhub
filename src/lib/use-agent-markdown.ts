@@ -1,25 +1,35 @@
 import { useCallback, useEffect, useRef } from "react";
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import {
-  buildAboutDevhubForBrowserCopy,
-  buildMarkdownWithAboutDevhubLeadIn,
-  useAboutDevhubBody,
+  buildTemplateAgentMarkdown,
+  useAgentPromptParts,
 } from "@/lib/copy-about-devhub";
 
+/**
+ * Discriminator for the "Copy as Markdown" / "Copy prompt" flows. Every
+ * template-style copy (recipe, cookbook, example) wraps the body in the
+ * shared composer; reference pages (docs, solutions) skip the preamble and
+ * emit the raw content with frontmatter so they can be ingested as
+ * follow-up references.
+ */
+type AgentMarkdownKind = "recipe" | "cookbook" | "example" | "doc" | "solution";
+
 export type AgentMarkdownInput = {
+  /** What the user is copying. Determines whether the preamble is included. */
+  kind: AgentMarkdownKind;
+  /** Pre-fetched markdown body. When omitted, `rawMarkdownUrl` is fetched on demand. */
   rawMarkdown?: string;
+  /** URL to fetch the raw markdown from when `rawMarkdown` is not pre-supplied. */
   rawMarkdownUrl?: string;
+  /** Extra markdown appended after the raw body (recipe / cookbook / doc / solution). */
   additionalMarkdown?: string;
   /**
-   * When set, the result is `about-devhub + --- + this string`,
-   * ignoring frontmatter and rawMarkdown/additionalMarkdown.
+   * For kind="example": a pre-composed example body that replaces the default
+   * `frontmatter + raw + additional` body. The example detail page builds
+   * this with `buildFullPrompt` because examples need their own ordered
+   * `Get started` flow that frontmatter/raw can't express.
    */
-  agentBodyAfterAbout?: string;
-  /**
-   * When true, the About DevHub preamble is omitted (used for reference doc
-   * pages where the preamble is already part of the linking resource).
-   */
-  omitAboutDevhubPreamble?: boolean;
+  customTemplateBody?: string;
   title: string;
   description: string;
   permalink: string;
@@ -40,11 +50,11 @@ export function useAgentMarkdown(
   input: AgentMarkdownInput,
 ): UseAgentMarkdownResult {
   const {
+    kind,
     rawMarkdown,
     rawMarkdownUrl,
     additionalMarkdown,
-    agentBodyAfterAbout,
-    omitAboutDevhubPreamble = false,
+    customTemplateBody,
     title,
     description,
     permalink,
@@ -55,7 +65,7 @@ export function useAgentMarkdown(
   const baseUrl =
     typeof window !== "undefined" ? window.location.origin : buildSiteUrl;
   const fullUrl = baseUrl + permalink;
-  const aboutDevhubBody = useAboutDevhubBody();
+  const parts = useAgentPromptParts();
   const fetchedMarkdownRef = useRef<string | null>(null);
 
   useEffect(() => {
@@ -75,35 +85,39 @@ export function useAgentMarkdown(
   }, [rawMarkdown, rawMarkdownUrl]);
 
   const buildAIMarkdown = useCallback((): string => {
-    const originForCopy = baseUrl || buildSiteUrl;
-    const llmsUrl = `${originForCopy}/llms.txt`;
-
-    if (agentBodyAfterAbout !== undefined) {
-      return buildMarkdownWithAboutDevhubLeadIn(
-        aboutDevhubBody,
-        llmsUrl,
-        agentBodyAfterAbout,
-      );
-    }
-
+    const siteOrigin = baseUrl || buildSiteUrl;
     const rawContent = rawMarkdown ?? fetchedMarkdownRef.current ?? "";
-    const escapedTitle = title.replace(/"/g, '\\"');
-    const escapedDescription = description.replace(/"/g, '\\"');
+    const frontmatterBody = buildFrontmatterBody({
+      title,
+      description,
+      fullUrl,
+      rawContent,
+      additionalMarkdown,
+    });
 
-    let md = "";
-    if (!omitAboutDevhubPreamble) {
-      md += `${buildAboutDevhubForBrowserCopy(aboutDevhubBody, llmsUrl)}\n\n`;
+    if (kind === "doc" || kind === "solution") {
+      return frontmatterBody;
     }
-    md += `---\ntitle: "${escapedTitle}"\nurl: ${fullUrl}\nsummary: "${escapedDescription}"\n---\n\n`;
-    if (rawContent) md += `${rawContent}\n\n`;
-    if (additionalMarkdown) md += `${additionalMarkdown}\n\n`;
-    return md;
+
+    const templateBody =
+      kind === "example" && customTemplateBody !== undefined
+        ? customTemplateBody
+        : frontmatterBody;
+
+    return buildTemplateAgentMarkdown({
+      parts,
+      kind,
+      templateName: title,
+      templateUrl: fullUrl,
+      templateBody,
+      siteOrigin,
+    });
   }, [
+    kind,
     rawMarkdown,
     additionalMarkdown,
-    agentBodyAfterAbout,
-    aboutDevhubBody,
-    omitAboutDevhubPreamble,
+    customTemplateBody,
+    parts,
     title,
     description,
     fullUrl,
@@ -112,4 +126,19 @@ export function useAgentMarkdown(
   ]);
 
   return { baseUrl, fullUrl, buildAIMarkdown, ensureFetched };
+}
+
+function buildFrontmatterBody(input: {
+  title: string;
+  description: string;
+  fullUrl: string;
+  rawContent: string;
+  additionalMarkdown?: string;
+}): string {
+  const escapedTitle = input.title.replace(/"/g, '\\"');
+  const escapedDescription = input.description.replace(/"/g, '\\"');
+  let body = `---\ntitle: "${escapedTitle}"\nurl: ${input.fullUrl}\nsummary: "${escapedDescription}"\n---\n\n`;
+  if (input.rawContent) body += `${input.rawContent}\n\n`;
+  if (input.additionalMarkdown) body += `${input.additionalMarkdown}\n\n`;
+  return body.trimEnd() + "\n";
 }

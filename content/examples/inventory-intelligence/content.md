@@ -1,6 +1,6 @@
 ## Inventory Intelligence
 
-This example builds a full retail inventory management system on the Databricks stack: a React app where store managers monitor stock health, review AI-generated replenishment recommendations, and approve purchase orders — all powered by a live medallion pipeline and pluggable demand forecast job.
+This template builds a full retail inventory management system on the Databricks stack: a React app where store managers monitor stock health, review AI-generated replenishment recommendations, and approve purchase orders — all powered by a live medallion pipeline and pluggable demand forecast job.
 
 ### Setup — interview the user
 
@@ -53,7 +53,7 @@ The app should have a **beautiful, polished design** — clean typography, consi
 
 Provisioning (Unity Catalog schemas, Lakebase REPLICA IDENTITY), seeding, pipeline deploys, reverse sync, and app deploy are documented in the repository's **`template/README.md`** alongside the code.
 
-To make this example your own:
+To make this template your own:
 
 - **Catalog**: Set the `catalog` variable in each pipeline's `databricks.yml` to your Unity Catalog catalog name.
 - **Lakebase**: Point the app's `databricks.yml` at your own Lakebase project, branch, and database.

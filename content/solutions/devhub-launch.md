@@ -29,7 +29,7 @@ That's it. There's a "Copy prompt for your agent" button on the landing page tha
 
 Templates are the building blocks. Each one is a self-contained markdown prompt that walks you (and your agent) through one outcome end to end. Today the landing page surfaces:
 
-- **[Hello World App](/templates/hello-world-app)** — local bootstrap, app scaffolding, and your first deploy.
+- **[Connect Your Workstation to Databricks](/templates/connect-workstation-to-databricks)** — install the CLI, authenticate a profile, smoke-test the handshake. The starting point for everything else.
 - **[AI Chat App](/templates/ai-chat-app)** — streaming chat over Model Serving, with chat history persisted in Lakebase.
 - **[App with Lakebase](/templates/app-with-lakebase)** — a Databricks app with managed Postgres, schema setup, and CRUD routes.
 - **[Genie Analytics App](/templates/genie-analytics-app)** — a Databricks app with embedded conversational analytics powered by AI/BI Genie.

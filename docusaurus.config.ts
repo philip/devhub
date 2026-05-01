@@ -8,7 +8,7 @@ import cookbooksPlugin from "./plugins/cookbooks";
 import llmsTxtPlugin from "./plugins/llms-txt";
 import remarkCliTabs from "./plugins/remark-cli-tabs";
 import robotsTxtPlugin from "./plugins/robots-txt";
-import { examplesEnabled, showDrafts } from "./src/lib/feature-flags-server";
+import { showDrafts } from "./src/lib/feature-flags-server";
 import { resolveSiteUrl } from "./src/lib/site-url";
 
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
@@ -19,7 +19,6 @@ const config: Config = {
   favicon: "img/favicon.svg",
   customFields: {
     showDrafts: showDrafts(),
-    examplesFeature: examplesEnabled(),
   },
 
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future

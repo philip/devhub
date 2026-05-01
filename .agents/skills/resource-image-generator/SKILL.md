@@ -114,7 +114,7 @@ Do NOT set `galleryImages` from this skill — galleries are for real screenshot
 
 ### 6. Visually Verify With agent-browser
 
-Make sure the dev server is running (`npm run dev` — set `EXAMPLES_FEATURE=true` in `.env.local` if the resource is an example).
+Make sure the dev server is running (`npm run dev`).
 
 ```bash
 # Resources list (card-sized view)

@@ -16,11 +16,13 @@ title: Quickstart
 
 Common starting points:
 
-| Template                                          | Best for                                   |
-| ------------------------------------------------- | ------------------------------------------ |
-| [Hello World App](/templates/hello-world-app)     | Simple apps, static pages, getting started |
-| [AI Chat App](/templates/ai-chat-app)             | Conversational AI, chatbots, assistants    |
-| [App with Lakebase](/templates/app-with-lakebase) | CRUD apps with persistent storage          |
+| Template                                                                               | Best for                                                 |
+| -------------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| [Connect Your Workstation to Databricks](/templates/connect-workstation-to-databricks) | Install the CLI, authenticate, verify the workspace      |
+| [Spin Up a Databricks App](/templates/spin-up-databricks-app)                          | Scaffold a fresh AppKit app, run it locally, and deploy  |
+| [Onboard Your Coding Agent](/templates/onboard-your-coding-agent)                      | Install agent skills, wire up the DevHub Docs MCP server |
+| [AI Chat App](/templates/ai-chat-app)                                                  | Conversational AI, chatbots, assistants                  |
+| [App with Lakebase](/templates/app-with-lakebase)                                      | CRUD apps with persistent storage                        |
 
 The [templates catalog](/templates) has the full list, including [Lakebase Postgres](/docs/lakebase/quickstart), [Genie spaces](/docs/agents/genie), [AI Gateway](/docs/agents/ai-gateway), and [Agent Bricks](/docs/agents/overview).
 

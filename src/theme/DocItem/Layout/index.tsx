@@ -66,11 +66,11 @@ export default function DocItemLayout({ children }: Props): ReactNode {
 
             <div className="mt-3 flex justify-end mb-3">
               <AIExportMenu
+                kind="doc"
                 rawMarkdownUrl={rawMarkdownUrl}
                 title={metadata.title ?? ""}
                 description={metadata.description ?? ""}
                 permalink={metadata.permalink ?? ""}
-                omitAboutDevhubPreamble
               />
             </div>
 

@@ -1,6 +1,10 @@
 import { existsSync, readFileSync } from "fs";
 import { resolve } from "path";
-import { substituteAboutDevhubLlmsUrl } from "../src/lib/copy-preamble";
+import {
+  composeAgentPrompt,
+  type AgentPromptKind,
+  type AgentPromptParts,
+} from "../src/lib/copy-preamble";
 import { ABOUT_DEVHUB_SLUG } from "../src/lib/bootstrap-prompt";
 import {
   hasContentSlug,
@@ -18,7 +22,7 @@ import {
   recipesInOrder,
   cookbooks,
 } from "../src/lib/recipes/recipes";
-import { showDrafts, examplesEnabled } from "../src/lib/feature-flags-server";
+import { showDrafts } from "../src/lib/feature-flags-server";
 import { solutions, isLinkedSolution } from "../src/lib/solutions/solutions";
 
 export type MarkdownSection =
@@ -27,6 +31,13 @@ export type MarkdownSection =
   | "solutions"
   | "examples"
   | "templates";
+
+/**
+ * Recipe injected into every agent-prompt copy as the "Verify your local
+ * Databricks dev environment" block. Must always be the smallest viable
+ * prerequisite for downstream DevHub work — currently CLI install + auth.
+ */
+const LOCAL_BOOTSTRAP_SLUG = "connect-workstation-to-databricks";
 
 function validateSlug(slug: string): void {
   if (!slug || slug.trim() === "") {
@@ -117,7 +128,7 @@ function readExampleMarkdown(rootDir: string, slug: string): string {
   }
   if (example.githubPath) {
     lines.push(
-      `[View source on GitHub](https://github.com/databricks/devhub/tree/main/${example.githubPath})`,
+      `[View source on GitHub](https://github.com/databricks/devhub/tree/main/${example.githubPath}/template)`,
       "",
     );
   }
@@ -181,12 +192,9 @@ function readTemplateMarkdown(rootDir: string, slug: string): string {
 /** Markdown index served at /templates.md — lists every template in one flat catalog. */
 function readTemplatesIndex(): string {
   const includeDrafts = showDrafts();
-  const includeExamples = examplesEnabled();
   const publishedCookbooks = filterPublished(cookbooks, includeDrafts);
   const publishedRecipes = filterPublished(recipesInOrder, includeDrafts);
-  const publishedExamples = includeExamples
-    ? filterPublished(examples, includeDrafts)
-    : [];
+  const publishedExamples = filterPublished(examples, includeDrafts);
 
   const allTemplates = [
     ...publishedCookbooks,
@@ -260,33 +268,129 @@ export function getDetailMarkdown(
   }
 }
 
-export function readAboutDevhubBody(rootDir: string = process.cwd()): string {
-  const filePath = resolve(rootDir, "content", `${ABOUT_DEVHUB_SLUG}.md`);
-  return readFileSync(filePath, "utf-8");
+/** Reads all preamble blocks from disk for the server-side composer. */
+export function loadAgentPromptParts(
+  rootDir: string = process.cwd(),
+): AgentPromptParts {
+  const readContent = (slug: string): string =>
+    readFileSync(resolve(rootDir, "content", `${slug}.md`), "utf-8");
+  return {
+    about: readContent(ABOUT_DEVHUB_SLUG),
+    guidelines: readContent("dev-guidelines"),
+    intentHero: readContent("intent-hero"),
+    intentRecipe: readContent("intent-recipe"),
+    intentCookbook: readContent("intent-cookbook"),
+    intentExample: readContent("intent-example"),
+    localBootstrap: joinContentSections(
+      readContentSections(rootDir, "recipes", LOCAL_BOOTSTRAP_SLUG),
+    ),
+  };
 }
 
 /**
- * Prepends the About DevHub block (with llms.txt URL substituted to point at
- * the caller's site origin) to a markdown body. Accepts either a bare host
- * (`localhost:3001`) or a full origin (`https://dev.databricks.com`) for
- * backwards-compatibility with existing tests.
+ * Resolves the agent-prompt kind for a section + slug combination. Returns
+ * undefined for sections/slugs that should _not_ be wrapped (docs, solutions,
+ * empty-slug index pages).
  */
-export function prependLlmsReference(
-  markdown: string,
-  siteUrlOrHost: string,
-): string {
-  const llmsUrl = toLlmsUrl(siteUrlOrHost);
-  const about = substituteAboutDevhubLlmsUrl(
-    readAboutDevhubBody(process.cwd()),
-    llmsUrl,
-  );
-  return `${about.trimEnd()}\n\n${markdown.trimEnd()}\n`;
+export function resolveTemplateKind(
+  section: MarkdownSection,
+  slug: string,
+  rootDir: string = process.cwd(),
+): {
+  kind: Exclude<AgentPromptKind, "hero">;
+  templateName: string;
+  templatePath: string;
+} | null {
+  if (!slug) return null;
+
+  if (section === "recipes" && hasContentSlug(rootDir, "recipes", slug)) {
+    const recipe = recipes.find((r) => r.id === slug);
+    if (recipe) {
+      return {
+        kind: "recipe",
+        templateName: recipe.name,
+        templatePath: `/templates/${slug}`,
+      };
+    }
+  }
+
+  if (section === "examples" && hasContentSlug(rootDir, "examples", slug)) {
+    const example = examples.find((e) => e.id === slug);
+    if (example) {
+      return {
+        kind: "example",
+        templateName: example.name,
+        templatePath: `/templates/${slug}`,
+      };
+    }
+  }
+
+  if (section === "templates") {
+    const recipe = recipes.find((r) => r.id === slug);
+    if (recipe) {
+      return {
+        kind: "recipe",
+        templateName: recipe.name,
+        templatePath: `/templates/${slug}`,
+      };
+    }
+    const cookbook = cookbooks.find((c) => c.id === slug);
+    if (cookbook) {
+      return {
+        kind: "cookbook",
+        templateName: cookbook.name,
+        templatePath: `/templates/${slug}`,
+      };
+    }
+    const example = examples.find((e) => e.id === slug);
+    if (example) {
+      return {
+        kind: "example",
+        templateName: example.name,
+        templatePath: `/templates/${slug}`,
+      };
+    }
+  }
+
+  return null;
 }
 
-function toLlmsUrl(siteUrlOrHost: string): string {
-  if (/^https?:\/\//i.test(siteUrlOrHost)) {
-    return `${siteUrlOrHost.replace(/\/$/, "")}/llms.txt`;
+/**
+ * Wraps a template body in the full agent prompt (about + guidelines + intent
+ * + local-bootstrap + body). Used by `api/markdown.ts` to serve `.md` URLs and
+ * `api/bootstrap-prompt.ts` reuses the same shared composer.
+ *
+ * `siteOrigin` accepts either a bare host (`localhost:3001`), a host with port
+ * (`dev.databricks.com`), or a full origin (`https://dev.databricks.com`).
+ */
+export function composeTemplateAgentPrompt(input: {
+  body: string;
+  section: MarkdownSection;
+  slug: string;
+  siteOrigin: string;
+  rootDir?: string;
+}): string {
+  const rootDir = input.rootDir ?? process.cwd();
+  const resolved = resolveTemplateKind(input.section, input.slug, rootDir);
+  if (!resolved) {
+    throw new Error(
+      `composeTemplateAgentPrompt: no template kind for section="${input.section}" slug="${input.slug}".`,
+    );
   }
-  const protocol = siteUrlOrHost.startsWith("localhost") ? "http" : "https";
-  return `${protocol}://${siteUrlOrHost}/llms.txt`;
+  const origin = normalizeOrigin(input.siteOrigin);
+  return composeAgentPrompt({
+    parts: loadAgentPromptParts(rootDir),
+    kind: resolved.kind,
+    siteOrigin: origin,
+    templateName: resolved.templateName,
+    templateUrl: `${origin}${resolved.templatePath}`,
+    templateBody: input.body,
+  });
+}
+
+function normalizeOrigin(siteUrlOrHost: string): string {
+  const trimmed = siteUrlOrHost.replace(/\/$/, "");
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  const protocol = trimmed.startsWith("localhost") ? "http" : "https";
+  return `${protocol}://${trimmed}`;
 }

@@ -110,35 +110,25 @@ describe("filterPublished", () => {
   });
 });
 
-describe("templates index filters drafts from API markdown", () => {
+describe("templates index in API markdown", () => {
   afterEach(() => {
     delete process.env.SHOW_DRAFTS;
-    delete process.env.EXAMPLES_FEATURE;
     delete process.env.CI;
     vi.resetModules();
   });
 
   test("templates index includes published entries from every internal kind", async () => {
-    process.env.EXAMPLES_FEATURE = "true";
     const { getDetailMarkdown } = await import("../api/content-markdown");
     const markdown = getDetailMarkdown("templates", "");
     expect(markdown).toContain("# Templates");
     expect(markdown).not.toContain("## Cookbooks");
     expect(markdown).not.toContain("## Recipes");
     expect(markdown).not.toContain("## Examples");
-    expect(markdown).toContain("/templates/hello-world-app.md");
-    expect(markdown).toContain("/templates/databricks-local-bootstrap.md");
+    expect(markdown).not.toContain("/templates/hello-world-app.md");
+    expect(markdown).toContain("/templates/ai-chat-app.md");
+    expect(markdown).toContain(
+      "/templates/connect-workstation-to-databricks.md",
+    );
     expect(markdown).toContain("/templates/agentic-support-console.md");
-  });
-
-  test("templates index excludes examples when feature is disabled", async () => {
-    delete process.env.EXAMPLES_FEATURE;
-    process.env.CI = "true";
-    const { getDetailMarkdown } = await import("../api/content-markdown");
-    const markdown = getDetailMarkdown("templates", "");
-    expect(markdown).toContain("# Templates");
-    expect(markdown).toContain("/templates/hello-world-app.md");
-    expect(markdown).toContain("/templates/databricks-local-bootstrap.md");
-    expect(markdown).not.toContain("/templates/agentic-support-console.md");
   });
 });

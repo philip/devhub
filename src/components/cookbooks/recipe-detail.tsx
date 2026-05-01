@@ -3,7 +3,6 @@ import Layout from "@theme/Layout";
 import { MDXProvider } from "@mdx-js/react";
 import { useRef, type ReactNode } from "react";
 import { TemplateUsageBanner } from "@/components/template-usage-banner";
-import { Badge } from "@/components/ui/badge";
 import { RecipePre } from "@/components/cookbooks/recipe-code-block";
 import { RecipeToc } from "@/components/cookbooks/recipe-toc";
 import { recipes } from "@/lib/recipes/recipes";
@@ -44,6 +43,7 @@ export function RecipeDetail({
                 </Link>
 
                 <TemplateUsageBanner
+                  kind="recipe"
                   rawMarkdown={rawMarkdown}
                   title={recipe.name}
                   description={recipe.description}
@@ -55,20 +55,9 @@ export function RecipeDetail({
                     {recipe.name}
                   </h1>
                 </div>
-                <p className="mb-4 max-w-2xl text-base leading-relaxed text-muted-foreground">
+                <p className="mb-8 max-w-2xl text-base leading-relaxed text-muted-foreground">
                   {recipe.description}
                 </p>
-                <div className="mb-8 flex flex-wrap gap-2">
-                  {recipe.tags.map((tag) => (
-                    <Badge
-                      key={tag}
-                      variant="secondary"
-                      className="rounded-sm border border-black/10 bg-black/4 px-2 py-0.5 text-xs font-medium text-black/78 dark:border-white/10 dark:bg-white/8 dark:text-white/78"
-                    >
-                      {tag}
-                    </Badge>
-                  ))}
-                </div>
 
                 <div className="recipe-content-card" ref={contentRef}>
                   <MDXProvider components={recipeComponents}>

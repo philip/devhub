@@ -27,15 +27,14 @@ You'll also need the [Vercel CLI](https://vercel.com/docs/cli) (for `vercel dev`
 
 ### Feature Flags
 
-Some features (examples, draft content) are gated behind env vars so we can ship content progressively. To enable them locally, create `.env.local` in the repo root:
+Draft content is gated behind an env var so we can ship content progressively. To enable it locally, create `.env.local` in the repo root:
 
 ```ini
 # .env.local — gitignored, local-only overrides
-EXAMPLES_FEATURE=true
 SHOW_DRAFTS=true
 ```
 
-`scripts/dev.sh` sources `.env.local` before launching `vercel dev`, so both Docusaurus and the Functions runtime see the values. Restart the dev server after editing the file.
+`scripts/dev.sh` sources `.env.local` before launching `vercel dev`, so both Docusaurus and the Functions runtime see the value. Restart the dev server after editing the file.
 
 A flag is **enabled only when its value is exactly `"true"`** — any other value (empty, `"1"`, `"yes"`) is treated as disabled.
 
@@ -75,23 +74,29 @@ If any step fails, the commit is aborted. Fix the issue and commit again.
 
 ## Authoring Content
 
-DevHub has three tiers of content, all rendered at `/templates/<id>`:
+> **New contributor?** The end-to-end walkthrough for adding recipes, cookbooks, and examples lives in the [`author-recipes-and-cookbooks`](./.agents/skills/author-recipes-and-cookbooks/SKILL.md) agent skill. It's the source of truth — the section below is a quick orientation for humans; the skill stays exhaustive so both humans and coding agents can follow it end to end.
 
-| Tier         | Purpose                                                           | Source                                                                            |
-| ------------ | ----------------------------------------------------------------- | --------------------------------------------------------------------------------- |
-| **Recipe**   | One atomic outcome (e.g. "Create a Lakebase instance")            | `content/recipes/<id>.md` + metadata in `src/lib/recipes/recipes.ts`              |
-| **Cookbook** | End-to-end use case composed from multiple recipes (aka Template) | Metadata in `src/lib/recipes/recipes.ts` + page in `src/pages/templates/<id>.tsx` |
-| **Example**  | Full runnable app with code, pipelines, deploy                    | `content/examples/<id>.md` + `examples/<id>/template/` + metadata                 |
+DevHub has three internal content tiers that compose into each other:
 
-In the UI, cookbooks and recipes are both labelled "Guides"; examples are labelled "Examples". Slugs must be globally unique across the three — the content-entries plugin validates this at build time.
+- **Recipe** — atomic, copy-pasteable agent prompt for one outcome (e.g. "Create a Lakebase instance"). The smallest unit; everything else is built from these.
+- **Cookbook** — composes multiple recipes into a longer end-to-end guide, plus its own meta content (intro, narrative, ordering). No app source.
+- **Example** — a cookbook _plus_ a full deployable `examples/<slug>/template/` codebase. Bundles recipes and cookbook narrative around runnable app code.
+
+So: recipes are the atoms, cookbooks compose recipes with additional context, and examples are cookbooks with shipped code. **User-facing, all three are presented as one thing: a "template"** — the site, navigation, filters, copy-pasted prompts, and `llms.txt` only ever say "template(s)".
+
+| Tier         | Purpose                                                            | Source                                                                            |
+| ------------ | ------------------------------------------------------------------ | --------------------------------------------------------------------------------- |
+| **Recipe**   | One atomic outcome (e.g. "Create a Lakebase instance")             | `content/recipes/<id>.md` + metadata in `src/lib/recipes/recipes.ts`              |
+| **Cookbook** | End-to-end walkthrough composed from multiple recipes              | Metadata in `src/lib/recipes/recipes.ts` + page in `src/pages/templates/<id>.tsx` |
+| **Example**  | Cookbook + full runnable app template with code, pipelines, deploy | `content/examples/<id>.md` + `examples/<id>/template/` + metadata                 |
+
+All three render at `/templates/<id>` and live in one unified Templates catalog filterable by service. Slugs must be globally unique across all three — the content-entries plugin validates this at build time.
 
 ### Quick Start
 
 1. Decide whether your change is a recipe, a cookbook, or an example.
-2. Follow the detailed walkthrough in the agent skill: [`.agents/skills/author-recipes-and-cookbooks/SKILL.md`](./.agents/skills/author-recipes-and-cookbooks/SKILL.md). It has the full contract — file layout, required fields, `createExample()` wiring, validation checklist, and a dry-run recipe for examples.
+2. Follow the detailed walkthrough in the [`author-recipes-and-cookbooks`](./.agents/skills/author-recipes-and-cookbooks/SKILL.md) skill. It has the full contract — file layout, required fields, `createExample()` wiring, validation checklist, and a dry-run recipe for examples.
 3. Run `npm run fmt && npm run typecheck && npm run build && npm run test` before opening a PR.
-
-The agent skill is the source of truth. This section gives humans enough context to orient; the skill stays exhaustive so both humans and coding agents can follow it end to end.
 
 ### Writing Style
 

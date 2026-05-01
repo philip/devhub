@@ -1,21 +1,16 @@
 import { test, expect } from "@playwright/test";
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
-import { getDetailMarkdown } from "../../api/content-markdown";
-import { substituteAboutDevhubLlmsUrl } from "../../src/lib/copy-preamble";
+import { loadAgentPromptParts } from "../../api/content-markdown";
+import { composeAgentPrompt } from "../../src/lib/copy-preamble";
 
-const ABOUT_DEVHUB_MARKDOWN = readFileSync(
-  resolve(process.cwd(), "content/about-devhub.md"),
-  "utf-8",
-);
-// Recipes live in per-slug folders (content/recipes/<slug>/content.md) since
-// the `feat(content): per-folder recipes/examples` restructure, so we resolve
-// via getDetailMarkdown rather than reading a flat file path.
-const LOCAL_BOOTSTRAP_MARKDOWN = getDetailMarkdown(
-  "recipes",
-  "databricks-local-bootstrap",
-);
-const BOOTSTRAP_PROMPT_MARKDOWN = `${substituteAboutDevhubLlmsUrl(ABOUT_DEVHUB_MARKDOWN, "https://dev.databricks.com/llms.txt").trimEnd()}\n\n---\n\n${LOCAL_BOOTSTRAP_MARKDOWN.trimEnd()}\n`;
+// Reproduce what `/api/bootstrap-prompt` returns for the hero "Copy prompt"
+// button: the full agent-prompt composer with kind="hero". We mock the API
+// response with this string so the e2e test asserts the composed output
+// shape rather than depending on a running dev server.
+const BOOTSTRAP_PROMPT_MARKDOWN = composeAgentPrompt({
+  parts: loadAgentPromptParts(),
+  kind: "hero",
+  siteOrigin: "https://dev.databricks.com",
+});
 
 test.describe("navbar navigation", () => {
   const NAVBAR_LINKS = [
@@ -61,7 +56,7 @@ test.describe("footer navigation", () => {
 });
 
 test.describe("home page link navigation", () => {
-  test('hero "Copy Prompt" copies about-devhub preamble + bootstrap recipe from API', async ({
+  test('hero "Copy Prompt" copies the full composed agent prompt (about + guidelines + hero intent + bootstrap) from API', async ({
     page,
   }) => {
     await page.route("**/api/bootstrap-prompt", async (route) => {
@@ -92,15 +87,20 @@ test.describe("home page link navigation", () => {
     await button.click();
 
     await expect(
-      page.locator("main").getByRole("button").filter({ hasText: "Copied" }),
+      page.locator("main").getByRole("button", { name: /^Copied — now paste/ }),
     ).toBeVisible({ timeout: 5000 });
     const finalCopiedText = await page.evaluate(
       () => (window as { __copiedText?: string }).__copiedText,
     );
     expect(finalCopiedText).toBe(BOOTSTRAP_PROMPT_MARKDOWN);
     expect(finalCopiedText).toContain("# About DevHub");
+    expect(finalCopiedText).toContain("# Working with DevHub prompts");
+    expect(finalCopiedText).toContain("# What the user just did");
     expect(finalCopiedText).toContain(
-      "## Databricks Local App Development Bootstrap",
+      "# Verify your local Databricks dev environment",
+    );
+    expect(finalCopiedText).toContain(
+      "## Connect Your Workstation to Databricks",
     );
     expect(finalCopiedText).toContain("dev.databricks.com");
     expect(finalCopiedText).toContain("llms.txt");
@@ -142,15 +142,15 @@ test.describe("home page link navigation", () => {
     expect(new URL(page.url()).pathname).toBe("/templates");
   });
 
-  test("template preview card navigates to /templates/hello-world-app", async ({
+  test("template preview card navigates to /templates/ai-chat-app", async ({
     page,
   }) => {
     await page.goto("/");
-    const link = page.locator('a[href="/templates/hello-world-app"]');
+    const link = page.locator('a[href="/templates/ai-chat-app"]').first();
     await link.waitFor({ state: "visible" });
     await link.click();
-    await page.waitForURL("**/templates/hello-world-app");
-    expect(new URL(page.url()).pathname).toBe("/templates/hello-world-app");
+    await page.waitForURL("**/templates/ai-chat-app");
+    expect(new URL(page.url()).pathname).toBe("/templates/ai-chat-app");
   });
 });
 
@@ -176,11 +176,11 @@ test.describe("solutions page navigation", () => {
 
 test.describe("templates page navigation", () => {
   const TEMPLATES = [
-    { path: "/templates/hello-world-app", kind: "cookbook" },
     { path: "/templates/ai-chat-app", kind: "cookbook" },
+    { path: "/templates/app-with-lakebase", kind: "cookbook" },
     { path: "/templates/agentic-support-console", kind: "example" },
     { path: "/templates/saas-tracker", kind: "example" },
-    { path: "/templates/databricks-local-bootstrap", kind: "recipe" },
+    { path: "/templates/connect-workstation-to-databricks", kind: "recipe" },
   ];
 
   for (const { path, kind } of TEMPLATES) {
@@ -227,7 +227,7 @@ test.describe("template detail page navigation", () => {
   test('"All templates" back link navigates to /templates from cookbook', async ({
     page,
   }) => {
-    await page.goto("/templates/hello-world-app");
+    await page.goto("/templates/ai-chat-app");
     await page.getByRole("link", { name: /All templates/ }).click();
     await page.waitForURL("**/templates");
     expect(new URL(page.url()).pathname).toBe("/templates");
@@ -244,27 +244,24 @@ test.describe("template detail page navigation", () => {
 });
 
 test.describe("example detail page", () => {
-  test("shows example badge, GitHub link, and init command", async ({
-    page,
-  }) => {
+  test("shows starter-code card with GitHub link", async ({ page }) => {
     const response = await page.goto("/templates/agentic-support-console");
     expect(response?.status()).toBe(200);
-    await expect(
-      page.locator("main").getByText("Example", { exact: true }),
-    ).toBeVisible();
     await expect(
       page.getByRole("heading", { name: "Agentic Support Console", level: 1 }),
     ).toBeVisible();
     await expect(
+      page.getByText("Includes a working starter app"),
+    ).toBeVisible();
+    await expect(
       page.getByRole("link", { name: "View on GitHub" }),
     ).toBeVisible();
-    await expect(page.getByText("git clone --depth 1")).toBeVisible();
   });
 
   test("shows included templates", async ({ page }) => {
     await page.goto("/templates/agentic-support-console");
     await expect(
-      page.getByRole("heading", { name: "Included Templates" }),
+      page.getByRole("heading", { name: "Built on these templates" }),
     ).toBeVisible();
     await expect(
       page.getByText("Operational Data Analytics", { exact: true }),

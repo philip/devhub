@@ -8,7 +8,6 @@ const PAGES = [
     title: "Introducing dev.databricks.com",
   },
   { path: "/templates", title: "Templates" },
-  { path: "/templates/hello-world-app", title: "Hello World App" },
   { path: "/templates/ai-chat-app", title: "AI Chat App" },
   { path: "/templates/app-with-lakebase", title: "App with Lakebase" },
   {
@@ -24,8 +23,16 @@ const PAGES = [
     title: "SaaS Subscription Tracker",
   },
   {
-    path: "/templates/databricks-local-bootstrap",
-    title: "Databricks Local Bootstrap",
+    path: "/templates/connect-workstation-to-databricks",
+    title: "Connect Your Workstation to Databricks",
+  },
+  {
+    path: "/templates/spin-up-databricks-app",
+    title: "Spin Up a Databricks App",
+  },
+  {
+    path: "/templates/onboard-your-coding-agent",
+    title: "Onboard Your Coding Agent",
   },
   {
     path: "/templates/medallion-architecture-from-cdc",

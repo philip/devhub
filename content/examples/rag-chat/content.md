@@ -1,6 +1,6 @@
 ## RAG Chat App
 
-This example demonstrates a Retrieval-Augmented Generation chat app built on Databricks: a user question is embedded, similar documents are retrieved from a pgvector store in Lakebase Postgres, and the retrieved context is injected into a Model Serving call that streams the answer back. Conversations and sources are persisted per chat in Lakebase.
+This template demonstrates a Retrieval-Augmented Generation chat app built on Databricks: a user question is embedded, similar documents are retrieved from a pgvector store in Lakebase Postgres, and the retrieved context is injected into a Model Serving call that streams the answer back. Conversations and sources are persisted per chat in Lakebase.
 
 ### Data Flow
 
@@ -14,20 +14,20 @@ All retrieval and chat state live in Lakebase Postgres; generation uses AI Gatew
 
 ### Template Approach
 
-Unlike the other examples, **this example is designed to be consumed via `databricks apps init`**, not `git clone`. The init flow:
+Unlike the other templates, **this template is designed to be consumed via `databricks apps init`**, not `git clone`. The init flow:
 
 - Prompts for the Lakebase Postgres branch and database resource names.
 - Auto-resolves `PGHOST`, `PGDATABASE`, and `LAKEBASE_ENDPOINT` into your local `.env` by calling the Lakebase APIs.
 - Writes `DATABRICKS_CONFIG_PROFILE` or `DATABRICKS_HOST` based on your Databricks CLI configuration.
 - Drops you into a ready-to-run project directory named by `--name`.
 
-This validates the [AppKit templates system](https://databricks.github.io/appkit/docs/development/templates) as a way to ship DevHub examples — see `appkit.plugins.json` and `.env.tmpl` in the template for how it works.
+This validates the [AppKit templates system](https://databricks.github.io/appkit/docs/development/templates) as a way to ship DevHub templates — see `appkit.plugins.json` and `.env.tmpl` in the template for how it works.
 
 ### What to Adapt
 
 Setup and provisioning are documented in the repository's **`template/README.md`**.
 
-To make this example your own:
+To make this template your own:
 
 - **Lakebase**: Point the bundle at your own Lakebase project, branch, and database (prompted at init time).
 - **Model Serving endpoint**: Override `DATABRICKS_ENDPOINT` for a different chat model (e.g. `databricks-claude-sonnet-4`).

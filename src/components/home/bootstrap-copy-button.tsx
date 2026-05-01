@@ -1,8 +1,9 @@
 import type { ReactNode } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Check, Clipboard, LoaderCircle } from "lucide-react";
+import { AlertCircle, Check, Clipboard, LoaderCircle } from "lucide-react";
 import { track } from "@vercel/analytics";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { getBootstrapPromptApiPath } from "@/lib/bootstrap-prompt";
 
 function fallbackCopyTextToClipboard(text: string): boolean {
@@ -57,11 +58,43 @@ async function fetchBootstrapPrompt(): Promise<string> {
   return bootstrapPrompt;
 }
 
+type CopyState = "idle" | "copying" | "copied" | "error";
+
 type BootstrapCopyButtonProps = {
   /** Analytics tag distinguishing call sites (e.g. "hero", "wizard"). */
   source: string;
   className?: string;
 };
+
+/**
+ * Visible button label for each state. All four are stacked in a single CSS
+ * Grid cell so the button auto-sizes to the longest one and its width never
+ * changes when the state flips. Inactive states use `visibility: hidden`
+ * (which both reserves layout space *and* drops them from the accessibility
+ * tree, so the button's accessible name remains the active label).
+ */
+function StateLabel({
+  state,
+  active,
+  children,
+}: {
+  state: CopyState;
+  active: CopyState;
+  children: ReactNode;
+}) {
+  const isActive = state === active;
+  return (
+    <span
+      aria-hidden={!isActive}
+      className={cn(
+        "col-start-1 row-start-1 inline-flex items-center justify-center gap-2 transition-opacity duration-150 ease-out",
+        isActive ? "opacity-100" : "invisible opacity-0",
+      )}
+    >
+      {children}
+    </span>
+  );
+}
 
 /**
  * Copy-the-bootstrap-prompt button used on the home page hero and inside the
@@ -72,9 +105,7 @@ export function BootstrapCopyButton({
   source,
   className,
 }: BootstrapCopyButtonProps): ReactNode {
-  const [copyState, setCopyState] = useState<
-    "idle" | "copying" | "copied" | "error"
-  >("idle");
+  const [copyState, setCopyState] = useState<CopyState>("idle");
   const resetTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   useEffect(
@@ -108,24 +139,24 @@ export function BootstrapCopyButton({
       disabled={copyState === "copying"}
       title="Copies instructions you can paste into Cursor, Claude Code, Codex, or your favorite coding agent"
     >
-      {copyState === "copying" ? (
-        <span className="inline-flex items-center gap-2">
-          <LoaderCircle className="h-4 w-4 animate-spin" />
-          Copying…
-        </span>
-      ) : copyState === "copied" ? (
-        <span className="inline-flex items-center gap-2">
-          <Check className="h-4 w-4" />
-          Copied — now paste into your agent
-        </span>
-      ) : copyState === "error" ? (
-        "Failed to copy — try again"
-      ) : (
-        <span className="inline-flex items-center gap-2">
+      <span className="grid">
+        <StateLabel state="idle" active={copyState}>
           <Clipboard className="h-4 w-4" />
           Copy prompt for your agent
-        </span>
-      )}
+        </StateLabel>
+        <StateLabel state="copying" active={copyState}>
+          <LoaderCircle className="h-4 w-4 animate-spin" />
+          Copying…
+        </StateLabel>
+        <StateLabel state="copied" active={copyState}>
+          <Check className="h-4 w-4" />
+          Copied — now paste into your agent
+        </StateLabel>
+        <StateLabel state="error" active={copyState}>
+          <AlertCircle className="h-4 w-4" />
+          Failed to copy — try again
+        </StateLabel>
+      </span>
     </Button>
   );
 }

@@ -69,16 +69,28 @@ type CookbookPreviewItem = {
 
 export const recipes: Recipe[] = [
   {
-    id: "databricks-local-bootstrap",
-    name: "Databricks Local Bootstrap",
+    id: "connect-workstation-to-databricks",
+    name: "Connect Your Workstation to Databricks",
     description:
-      "Prepare a local Databricks app workspace: install CLI, authenticate, scaffold, and install Databricks agent skills.",
-    tags: ["Databricks CLI", "Setup", "Agent Skills"],
+      "Install the Databricks CLI, authenticate a profile, and verify the handshake. The strict prerequisite for every other DevHub recipe and template.",
+    tags: ["Databricks CLI", "Auth", "Setup"],
     services: ["Databricks Apps"],
-    previewImageLightUrl:
-      "/img/guides/databricks-local-bootstrap-preview-light.png",
-    previewImageDarkUrl:
-      "/img/guides/databricks-local-bootstrap-preview-dark.png",
+  },
+  {
+    id: "spin-up-databricks-app",
+    name: "Spin Up a Databricks App",
+    description:
+      "Scaffold a fresh AppKit Databricks App with `databricks apps init`, run it locally, and deploy to your workspace.",
+    tags: ["Databricks CLI", "AppKit", "Setup"],
+    services: ["Databricks Apps"],
+  },
+  {
+    id: "onboard-your-coding-agent",
+    name: "Onboard Your Coding Agent",
+    description:
+      "Install Databricks agent skills (project-scoped), wire up the DevHub Docs MCP server, and bootstrap an AGENTS.md so your coding assistant knows this repo's workspace defaults.",
+    tags: ["Agent Skills", "MCP", "AGENTS.md", "Setup"],
+    services: ["Databricks Apps"],
   },
   {
     id: "ai-chat-model-serving",
@@ -90,7 +102,7 @@ export const recipes: Recipe[] = [
     previewImageLightUrl: "/img/guides/ai-chat-model-serving-preview-light.png",
     previewImageDarkUrl: "/img/guides/ai-chat-model-serving-preview-dark.png",
     prerequisites: [
-      "databricks-local-bootstrap",
+      "connect-workstation-to-databricks",
       "lakebase-data-persistence",
       "foundation-models-api",
     ],
@@ -102,7 +114,7 @@ export const recipes: Recipe[] = [
       "Query AI Gateway endpoints for production-ready access to foundation models with built-in governance.",
     tags: ["AI", "AI Gateway", "Foundation Models"],
     services: ["AI Gateway"],
-    prerequisites: ["databricks-local-bootstrap"],
+    prerequisites: ["connect-workstation-to-databricks"],
     previewImageLightUrl: "/img/guides/foundation-models-api-preview-light.png",
     previewImageDarkUrl: "/img/guides/foundation-models-api-preview-dark.png",
   },
@@ -113,7 +125,7 @@ export const recipes: Recipe[] = [
       "Generate text embeddings from a Databricks AI Gateway endpoint using the Databricks SDK.",
     tags: ["AI", "AI Gateway", "Embeddings"],
     services: ["AI Gateway"],
-    prerequisites: ["databricks-local-bootstrap"],
+    prerequisites: ["connect-workstation-to-databricks"],
     previewImageLightUrl: "/img/guides/embeddings-generation-preview-light.png",
     previewImageDarkUrl: "/img/guides/embeddings-generation-preview-dark.png",
   },
@@ -124,7 +136,7 @@ export const recipes: Recipe[] = [
       "Create and validate a Databricks Model Serving endpoint for AI chat inference in Databricks Apps.",
     tags: ["Model Serving", "AI Gateway", "Endpoints", "Inference"],
     services: ["Model Serving", "AI Gateway"],
-    prerequisites: ["databricks-local-bootstrap"],
+    prerequisites: ["connect-workstation-to-databricks"],
     previewImageLightUrl:
       "/img/guides/model-serving-endpoint-creation-preview-light.png",
     previewImageDarkUrl:
@@ -150,7 +162,7 @@ export const recipes: Recipe[] = [
       "Provision a managed Lakebase Postgres project on Databricks and collect the connection values needed by downstream templates.",
     tags: ["Lakebase", "Postgres", "Setup"],
     services: ["Lakebase"],
-    prerequisites: ["databricks-local-bootstrap"],
+    prerequisites: ["connect-workstation-to-databricks"],
     previewImageLightUrl:
       "/img/guides/lakebase-create-instance-preview-light.png",
     previewImageDarkUrl:
@@ -163,7 +175,10 @@ export const recipes: Recipe[] = [
       "Add a managed Postgres database to your Databricks app using the Lakebase plugin. Covers schema setup, table creation, and full CRUD REST API routes.",
     tags: ["Lakebase", "Postgres", "CRUD", "Data"],
     services: ["Lakebase", "Databricks Apps"],
-    prerequisites: ["databricks-local-bootstrap", "lakebase-create-instance"],
+    prerequisites: [
+      "connect-workstation-to-databricks",
+      "lakebase-create-instance",
+    ],
     previewImageLightUrl:
       "/img/guides/lakebase-data-persistence-preview-light.png",
     previewImageDarkUrl:
@@ -176,7 +191,10 @@ export const recipes: Recipe[] = [
       "Enable vector similarity search in Lakebase using the pgvector extension. Covers extension setup, vector table design, insert and cosine retrieval helpers, and IVFFlat/HNSW index options.",
     tags: ["Lakebase", "Postgres", "pgvector", "Vector Search", "Embeddings"],
     services: ["Lakebase"],
-    prerequisites: ["databricks-local-bootstrap", "lakebase-create-instance"],
+    prerequisites: [
+      "connect-workstation-to-databricks",
+      "lakebase-create-instance",
+    ],
     previewImageLightUrl: "/img/guides/lakebase-pgvector-preview-light.png",
     previewImageDarkUrl: "/img/guides/lakebase-pgvector-preview-dark.png",
   },
@@ -194,7 +212,7 @@ export const recipes: Recipe[] = [
       "Delta",
     ],
     services: ["Lakebase", "Unity Catalog"],
-    prerequisites: ["databricks-local-bootstrap"],
+    prerequisites: ["connect-workstation-to-databricks"],
     previewImageLightUrl:
       "/img/guides/lakebase-change-data-feed-autoscaling-preview-light.png",
     previewImageDarkUrl:
@@ -207,7 +225,7 @@ export const recipes: Recipe[] = [
       "Sync Unity Catalog tables into Lakebase Autoscaling Postgres as synced tables for sub-10ms application queries, with snapshot, triggered, or continuous modes.",
     tags: ["Lakebase", "Sync Tables", "Unity Catalog", "Synced Tables", "CDF"],
     services: ["Lakebase", "Unity Catalog"],
-    prerequisites: ["databricks-local-bootstrap"],
+    prerequisites: ["connect-workstation-to-databricks"],
     previewImageLightUrl:
       "/img/guides/sync-tables-autoscaling-preview-light.png",
     previewImageDarkUrl: "/img/guides/sync-tables-autoscaling-preview-dark.png",
@@ -219,7 +237,7 @@ export const recipes: Recipe[] = [
       "Embed a Databricks AI/BI Genie chat interface so users can explore data through natural language. Configure a Genie space, wire up server and client plugins, declare app resources, and deploy.",
     tags: ["Genie", "AI/BI", "Natural Language", "Analytics"],
     services: ["Genie", "Databricks Apps"],
-    prerequisites: ["databricks-local-bootstrap"],
+    prerequisites: ["connect-workstation-to-databricks"],
     previewImageLightUrl:
       "/img/guides/genie-conversational-analytics-preview-light.png",
     previewImageDarkUrl:
@@ -232,7 +250,7 @@ export const recipes: Recipe[] = [
       "Create a Unity Catalog catalog backed by an external S3 bucket with storage credentials, external location, and a schema ready for lakehouse tables.",
     tags: ["Unity Catalog", "S3", "External Storage", "Setup"],
     services: ["Unity Catalog"],
-    prerequisites: ["databricks-local-bootstrap"],
+    prerequisites: ["connect-workstation-to-databricks"],
     previewImageLightUrl: "/img/guides/unity-catalog-setup-preview-light.png",
     previewImageDarkUrl: "/img/guides/unity-catalog-setup-preview-dark.png",
   },
@@ -261,7 +279,7 @@ export const recipes: Recipe[] = [
       "Analytics",
     ],
     services: ["Lakeflow Pipelines"],
-    prerequisites: ["databricks-local-bootstrap"],
+    prerequisites: ["connect-workstation-to-databricks"],
     previewImageLightUrl:
       "/img/guides/medallion-architecture-from-cdc-preview-light.png",
     previewImageDarkUrl:
@@ -312,7 +330,7 @@ export const recipes: Recipe[] = [
       "Add file upload, browsing, download, delete, file type validation, and CSV row preview to your Databricks app using Unity Catalog Volumes.",
     tags: ["Volumes", "Unity Catalog", "Files", "Upload", "CSV"],
     services: ["Unity Catalog"],
-    prerequisites: ["databricks-local-bootstrap"],
+    prerequisites: ["connect-workstation-to-databricks"],
     previewImageLightUrl: "/img/guides/volume-file-upload-preview-light.png",
     previewImageDarkUrl: "/img/guides/volume-file-upload-preview-dark.png",
   },
@@ -323,7 +341,9 @@ const recipeIndex: Record<string, Recipe> = Object.fromEntries(
 );
 
 export const recipesInOrder: Recipe[] = [
-  "databricks-local-bootstrap",
+  "connect-workstation-to-databricks",
+  "spin-up-databricks-app",
+  "onboard-your-coding-agent",
   "lakebase-create-instance",
   "lakebase-data-persistence",
   "lakebase-pgvector",
@@ -393,21 +413,11 @@ function createCookbook(config: CookbookConfig): Cookbook {
 
 export const cookbooks: Cookbook[] = [
   createCookbook({
-    id: "hello-world-app",
-    name: "Hello World App",
-    description:
-      "Databricks local bootstrap for CLI, auth, app scaffolding, and agent skill setup.",
-    recipeIds: ["databricks-local-bootstrap"],
-    previewImageLightUrl: "/img/guides/hello-world-app-preview-light.png",
-    previewImageDarkUrl: "/img/guides/hello-world-app-preview-dark.png",
-  }),
-  createCookbook({
     id: "ai-chat-app",
     name: "AI Chat App",
     description:
-      "Databricks local bootstrap, Model Serving integration, AI SDK streaming chat, and Lakebase-persisted chat history.",
+      "Model Serving integration, AI SDK streaming chat, and Lakebase-persisted chat history.",
     recipeIds: [
-      "databricks-local-bootstrap",
       "foundation-models-api",
       "ai-chat-model-serving",
       "lakebase-create-instance",
@@ -421,12 +431,8 @@ export const cookbooks: Cookbook[] = [
     id: "app-with-lakebase",
     name: "App with Lakebase",
     description:
-      "Bootstrap a Databricks app with Lakebase for persistent data storage. Includes schema setup and full CRUD API routes.",
-    recipeIds: [
-      "databricks-local-bootstrap",
-      "lakebase-create-instance",
-      "lakebase-data-persistence",
-    ],
+      "Wire up a Databricks App with Lakebase for persistent data storage. Includes schema setup and full CRUD API routes.",
+    recipeIds: ["lakebase-create-instance", "lakebase-data-persistence"],
     previewImageLightUrl: "/img/guides/app-with-lakebase-preview-light.png",
     previewImageDarkUrl: "/img/guides/app-with-lakebase-preview-dark.png",
   }),
@@ -434,8 +440,8 @@ export const cookbooks: Cookbook[] = [
     id: "genie-analytics-app",
     name: "Genie Analytics App",
     description:
-      "Build a minimal Databricks App with AI/BI Genie conversational analytics. Covers CLI setup, Genie space configuration, plugin wiring, and deploy.",
-    recipeIds: ["databricks-local-bootstrap", "genie-conversational-analytics"],
+      "Build a minimal Databricks App with AI/BI Genie conversational analytics. Covers Genie space configuration, plugin wiring, and deploy.",
+    recipeIds: ["genie-conversational-analytics"],
     previewImageLightUrl: "/img/guides/genie-analytics-app-preview-light.png",
     previewImageDarkUrl: "/img/guides/genie-analytics-app-preview-dark.png",
   }),
@@ -459,7 +465,6 @@ export const cookbooks: Cookbook[] = [
     description:
       "End-to-end setup for analyzing operational database data in the lakehouse: Unity Catalog with external storage, Lakebase provisioning, Lakehouse Sync CDC replication, and a medallion architecture pipeline with silver and gold layers.",
     recipeIds: [
-      "databricks-local-bootstrap",
       "unity-catalog-setup",
       "lakebase-create-instance",
       "lakebase-change-data-feed-autoscaling",
@@ -575,6 +580,19 @@ export const examples: Example[] = [
       "/img/examples/agentic-support-console-preview-light.png",
     previewImageDarkUrl:
       "/img/examples/agentic-support-console-preview-dark.png",
+  }),
+  createExample({
+    id: "vacation-rentals",
+    name: "Vacation Rentals Operations Console",
+    description:
+      "Vacation rental ops dashboard with revenue analytics from a SQL Warehouse, a booking queue with Lakebase-backed flags and agent notes, and an embedded Genie chat panel.",
+    githubPath: "examples/vacation-rentals",
+    initCommand:
+      "git clone --depth 1 https://github.com/databricks/devhub.git\ncd devhub/examples/vacation-rentals/template",
+    cookbookIds: ["app-with-lakebase"],
+    recipeIds: ["genie-conversational-analytics"],
+    previewImageLightUrl: "/img/examples/vacation-rentals-preview-light.png",
+    previewImageDarkUrl: "/img/examples/vacation-rentals-preview-dark.png",
   }),
   createExample({
     id: "saas-tracker",

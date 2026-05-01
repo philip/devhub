@@ -41,6 +41,7 @@ export function CookbookDetail({
                 </Link>
 
                 <TemplateUsageBanner
+                  kind="cookbook"
                   rawMarkdown={rawMarkdown}
                   title={cookbook.name}
                   description={cookbook.description}

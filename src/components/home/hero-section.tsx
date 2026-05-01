@@ -20,7 +20,7 @@ export function HeroSection(): ReactNode {
           <div className="mt-9 flex flex-col items-center gap-3">
             <BootstrapCopyButton
               source="hero"
-              className="h-12 rounded-full px-7 text-[0.95rem] font-medium shadow-[0_10px_30px_-10px_rgba(255,54,33,0.55)] transition-transform hover:-translate-y-0.5"
+              className="h-12 rounded-full px-7 text-[0.95rem] font-medium shadow-[0_10px_30px_-10px_rgba(255,54,33,0.55)] transition-shadow duration-200 ease-out hover:shadow-[0_14px_36px_-10px_rgba(255,54,33,0.7)] active:shadow-[0_4px_14px_-6px_rgba(255,54,33,0.55)]"
             />
             <div className="mt-4 flex items-center gap-3">
               <button

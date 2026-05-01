@@ -16,7 +16,7 @@ import {
   cookbooks,
   filterPublished,
 } from "../src/lib/recipes/recipes";
-import { showDrafts, examplesEnabled } from "../src/lib/feature-flags-server";
+import { showDrafts } from "../src/lib/feature-flags-server";
 import { nativeSolutions } from "../src/lib/solutions/solutions";
 
 function assertNoDuplicateSlugs(): void {
@@ -136,7 +136,6 @@ function getRegistrySlugs(entryType: EntryType): string[] {
       .sort();
   }
   if (entryType === "example") {
-    if (!examplesEnabled()) return [];
     return filterPublished(examples, includeDrafts)
       .map((example) => example.id)
       .sort();

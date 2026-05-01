@@ -4,10 +4,7 @@ import { useCallback, useMemo, useState, type ReactNode } from "react";
 import { ActiveFilters } from "@/components/templates/active-filters";
 import type { TemplateItem } from "@/components/templates/template-card";
 import { TemplateCard } from "@/components/templates/template-card";
-import {
-  TemplateFilters,
-  type TemplateType,
-} from "@/components/templates/template-filters";
+import { TemplateFilters } from "@/components/templates/template-filters";
 import { TemplateSearch } from "@/components/templates/template-search";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -26,13 +23,8 @@ import {
 } from "@/lib/recipes/recipes";
 import { useFeatureFlags } from "@/lib/feature-flags";
 
-function buildTemplateItems(
-  includeDrafts: boolean,
-  includeExamples: boolean,
-): TemplateItem[] {
-  const publishedExamples = includeExamples
-    ? filterPublished(examples, includeDrafts)
-    : [];
+function buildTemplateItems(includeDrafts: boolean): TemplateItem[] {
+  const publishedExamples = filterPublished(examples, includeDrafts);
   const publishedCookbooks = filterPublished(cookbooks, includeDrafts);
   const publishedRecipes = filterPublished(
     recipesInOrder,
@@ -59,29 +51,19 @@ export default function TemplatesPage(): ReactNode {
   const [selectedServices, setSelectedServices] = useState<Set<Service>>(
     new Set(),
   );
-  const [selectedTemplateTypes, setSelectedTemplateTypes] = useState<
-    Set<TemplateType>
-  >(new Set());
   const [activeTags, setActiveTags] = useState<Set<string>>(new Set());
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
-  const { showDrafts: includeDrafts, examplesEnabled: includeExamples } =
-    useFeatureFlags();
+  const { showDrafts: includeDrafts } = useFeatureFlags();
 
   const ALL_ITEMS = useMemo(
-    () => buildTemplateItems(includeDrafts, includeExamples),
-    [includeDrafts, includeExamples],
+    () => buildTemplateItems(includeDrafts),
+    [includeDrafts],
   );
 
   const filteredItems = useMemo(() => {
     const query = searchQuery.toLowerCase().trim();
     return ALL_ITEMS.filter((item) => {
-      if (selectedTemplateTypes.size > 0 && selectedTemplateTypes.size < 2) {
-        const isExample = item.kind === "example";
-        if (selectedTemplateTypes.has("examples") && !isExample) return false;
-        if (selectedTemplateTypes.has("cookbooks") && isExample) return false;
-      }
-
       if (selectedServices.size > 0) {
         const itemServices = item.data.services;
         if (!itemServices.some((s) => selectedServices.has(s))) return false;
@@ -99,28 +81,13 @@ export default function TemplatesPage(): ReactNode {
 
       return true;
     });
-  }, [
-    searchQuery,
-    selectedServices,
-    selectedTemplateTypes,
-    activeTags,
-    ALL_ITEMS,
-  ]);
+  }, [searchQuery, selectedServices, activeTags, ALL_ITEMS]);
 
   const handleToggleService = useCallback((service: Service) => {
     setSelectedServices((prev) => {
       const next = new Set(prev);
       if (next.has(service)) next.delete(service);
       else next.add(service);
-      return next;
-    });
-  }, []);
-
-  const handleToggleTemplateType = useCallback((type: TemplateType) => {
-    setSelectedTemplateTypes((prev) => {
-      const next = new Set(prev);
-      if (next.has(type)) next.delete(type);
-      else next.add(type);
       return next;
     });
   }, []);
@@ -135,22 +102,16 @@ export default function TemplatesPage(): ReactNode {
 
   const handleClearAllFilters = useCallback(() => {
     setSelectedServices(new Set());
-    setSelectedTemplateTypes(new Set());
     setActiveTags(new Set());
     setSearchQuery("");
   }, []);
 
-  const hasActiveFilters =
-    activeTags.size > 0 ||
-    selectedServices.size > 0 ||
-    selectedTemplateTypes.size > 0;
+  const hasActiveFilters = activeTags.size > 0 || selectedServices.size > 0;
 
   const filtersSidebar = (
     <TemplateFilters
       selectedServices={selectedServices}
       onToggleService={handleToggleService}
-      selectedTemplateTypes={selectedTemplateTypes}
-      onToggleTemplateType={handleToggleTemplateType}
     />
   );
 
@@ -189,9 +150,7 @@ export default function TemplatesPage(): ReactNode {
                 Filters
                 {hasActiveFilters && (
                   <Badge className="ml-0.5 size-5 justify-center rounded-full p-0 text-[10px]">
-                    {selectedServices.size +
-                      selectedTemplateTypes.size +
-                      activeTags.size}
+                    {selectedServices.size + activeTags.size}
                   </Badge>
                 )}
               </Button>
@@ -208,8 +167,6 @@ export default function TemplatesPage(): ReactNode {
                   onRemoveTag={handleRemoveTag}
                   selectedServices={selectedServices}
                   onRemoveService={handleToggleService}
-                  selectedTemplateTypes={selectedTemplateTypes}
-                  onRemoveTemplateType={handleToggleTemplateType}
                   onClearAll={handleClearAllFilters}
                 />
               </div>

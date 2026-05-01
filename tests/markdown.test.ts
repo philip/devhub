@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import {
-  prependLlmsReference,
+  composeTemplateAgentPrompt,
   getDetailMarkdown,
 } from "../api/content-markdown";
 
@@ -17,8 +17,11 @@ describe("detail markdown resolver", () => {
   });
 
   test("resolves recipe markdown", () => {
-    const markdown = getDetailMarkdown("recipes", "databricks-local-bootstrap");
-    expect(markdown).toContain("## Databricks Local App Development Bootstrap");
+    const markdown = getDetailMarkdown(
+      "recipes",
+      "connect-workstation-to-databricks",
+    );
+    expect(markdown).toContain("## Connect Your Workstation to Databricks");
     expect(markdown).toContain("databricks -v");
   });
 
@@ -29,9 +32,17 @@ describe("detail markdown resolver", () => {
   });
 
   test("resolves template markdown", () => {
-    const markdown = getDetailMarkdown("templates", "hello-world-app");
-    expect(markdown).toContain("# Hello World App");
-    expect(markdown).toContain("## Databricks Local App Development Bootstrap");
+    const markdown = getDetailMarkdown("templates", "ai-chat-app");
+    expect(markdown).toContain("# AI Chat App");
+    expect(markdown).toContain("## Lakebase Chat Persistence");
+  });
+
+  test("template markdown no longer embeds the connect-workstation recipe (now injected by the meta-prompt)", () => {
+    const markdown = getDetailMarkdown("templates", "ai-chat-app");
+    expect(markdown).not.toContain("## Connect Your Workstation to Databricks");
+    expect(markdown).not.toMatch(
+      /^### Connect Your Workstation to Databricks$/m,
+    );
   });
 
   test("template markdown hoists all recipe prereqs before any recipe content", () => {
@@ -41,19 +52,19 @@ describe("detail markdown resolver", () => {
       markdown.search(pattern);
 
     const prereqIdx = firstLineStart(/^## Prerequisites$/m);
-    const bootstrapContentIdx = firstLineStart(
-      /^## Databricks Local App Development Bootstrap$/m,
+    const foundationContentIdx = firstLineStart(
+      /^## Query AI Gateway Endpoints$/m,
     );
     const lakebaseContentIdx = firstLineStart(
       /^## Lakebase Chat Persistence$/m,
     );
 
     expect(prereqIdx).toBeGreaterThanOrEqual(0);
-    expect(prereqIdx).toBeLessThan(bootstrapContentIdx);
-    expect(bootstrapContentIdx).toBeLessThan(lakebaseContentIdx);
+    expect(prereqIdx).toBeLessThan(foundationContentIdx);
+    expect(foundationContentIdx).toBeLessThan(lakebaseContentIdx);
     // Only one combined `## Prerequisites` heading, with demoted H3 per recipe.
     expect(markdown.match(/^## Prerequisites$/gm)?.length).toBe(1);
-    expect(markdown).toMatch(/^### Databricks Local Bootstrap$/m);
+    expect(markdown).toMatch(/^### Query AI Gateway Endpoints$/m);
     expect(markdown).toMatch(/^### Lakebase Chat Persistence$/m);
   });
 
@@ -77,9 +88,9 @@ describe("templates section resolves recipes, examples, and cookbooks", () => {
   test("resolves a recipe slug via templates", () => {
     const markdown = getDetailMarkdown(
       "templates",
-      "databricks-local-bootstrap",
+      "connect-workstation-to-databricks",
     );
-    expect(markdown).toContain("## Databricks Local App Development Bootstrap");
+    expect(markdown).toContain("## Connect Your Workstation to Databricks");
   });
 
   test("resolves an example slug via templates", () => {
@@ -88,9 +99,9 @@ describe("templates section resolves recipes, examples, and cookbooks", () => {
   });
 
   test("resolves a cookbook slug via templates", () => {
-    const markdown = getDetailMarkdown("templates", "hello-world-app");
-    expect(markdown).toContain("# Hello World App");
-    expect(markdown).toContain("## Databricks Local App Development Bootstrap");
+    const markdown = getDetailMarkdown("templates", "ai-chat-app");
+    expect(markdown).toContain("# AI Chat App");
+    expect(markdown).toContain("## Lakebase Chat Persistence");
   });
 
   test("throws for unknown template slug", () => {
@@ -108,8 +119,11 @@ describe("empty-slug index pages", () => {
     expect(markdown).not.toContain("## Recipes");
     expect(markdown).not.toContain("## Examples");
     expect(markdown).toMatch(/\(\/templates\/[\w-]+\.md\)/);
-    expect(markdown).toContain("/templates/hello-world-app.md");
-    expect(markdown).toContain("/templates/databricks-local-bootstrap.md");
+    expect(markdown).toContain("/templates/ai-chat-app.md");
+    expect(markdown).toContain(
+      "/templates/connect-workstation-to-databricks.md",
+    );
+    expect(markdown).not.toContain("/templates/hello-world-app.md");
   });
 
   test("solutions index contains heading and .md links", () => {
@@ -143,67 +157,76 @@ describe("example markdown includes metadata", () => {
   });
 });
 
-describe("prependLlmsReference prepends about-devhub body", () => {
+describe("composeTemplateAgentPrompt wraps template bodies in the agent prompt", () => {
   const ABOUT_START = "# About DevHub";
 
-  test("prepends about with https llms.txt URL for production host", () => {
-    const result = prependLlmsReference("# Hello", "dev.databricks.com");
-    expect(result).toContain("https://dev.databricks.com/llms.txt");
-    expect(result).toContain("# Hello");
+  test("recipe wraps with about + guidelines + recipe intent + bootstrap + body", () => {
+    const body = getDetailMarkdown("recipes", "lakebase-chat-persistence");
+    const result = composeTemplateAgentPrompt({
+      body,
+      section: "recipes",
+      slug: "lakebase-chat-persistence",
+      siteOrigin: "https://dev.databricks.com",
+    });
     expect(result.startsWith(ABOUT_START)).toBe(true);
+    expect(result).toContain("# Working with DevHub prompts");
+    expect(result).toContain("# Verify your local Databricks dev environment");
+    expect(result).toContain("# The recipe the user copied");
+    expect(result).toContain("Lakebase Chat Persistence");
   });
 
-  test("prepends about with http llms.txt URL for localhost", () => {
-    const result = prependLlmsReference("# Hello", "localhost:3001");
+  test("example wraps with example intent and example label", () => {
+    const body = getDetailMarkdown("examples", "agentic-support-console");
+    const result = composeTemplateAgentPrompt({
+      body,
+      section: "examples",
+      slug: "agentic-support-console",
+      siteOrigin: "https://dev.databricks.com",
+    });
+    expect(result).toContain("# The example the user copied");
+    expect(result).toContain("Agentic Support Console");
+  });
+
+  test("templates section detects cookbook kind from slug", () => {
+    const body = getDetailMarkdown("templates", "ai-chat-app");
+    const result = composeTemplateAgentPrompt({
+      body,
+      section: "templates",
+      slug: "ai-chat-app",
+      siteOrigin: "https://dev.databricks.com",
+    });
+    expect(result).toContain("# The cookbook the user copied");
+  });
+
+  test("rewrites canonical origin to localhost when called with localhost", () => {
+    const body = getDetailMarkdown(
+      "recipes",
+      "connect-workstation-to-databricks",
+    );
+    const result = composeTemplateAgentPrompt({
+      body,
+      section: "recipes",
+      slug: "connect-workstation-to-databricks",
+      siteOrigin: "localhost:3001",
+    });
     expect(result).toContain("http://localhost:3001/llms.txt");
-    expect(result.startsWith(ABOUT_START)).toBe(true);
+    expect(result).toContain("- Website: http://localhost:3001");
+    expect(result).not.toContain("https://dev.databricks.com/llms.txt");
   });
 
-  test("includes working-with-content guidance from about-devhub", () => {
-    const result = prependLlmsReference("content", "dev.databricks.com");
-    expect(result).toContain("Working with DevHub content");
-    expect(result).toContain("Read through the entire content");
-  });
-
-  test("trims trailing whitespace from markdown", () => {
-    const result = prependLlmsReference("content\n\n\n", "dev.databricks.com");
-    expect(result).toMatch(/content\n$/);
-    expect(result).not.toMatch(/\n\n\n$/);
-  });
-
-  test("recipe markdown starts with about devhub", () => {
-    const markdown = getDetailMarkdown("recipes", "databricks-local-bootstrap");
-    const result = prependLlmsReference(markdown, "dev.databricks.com");
-    expect(result.startsWith(ABOUT_START)).toBe(true);
-    expect(result).toContain("## Databricks Local App Development Bootstrap");
-  });
-
-  test("example markdown starts with about devhub", () => {
-    const markdown = getDetailMarkdown("examples", "agentic-support-console");
-    const result = prependLlmsReference(markdown, "dev.databricks.com");
-    expect(result.startsWith(ABOUT_START)).toBe(true);
-    expect(result).toContain("## Agentic Support Console");
-  });
-
-  test("template markdown starts with about devhub", () => {
-    const markdown = getDetailMarkdown("templates", "hello-world-app");
-    const result = prependLlmsReference(markdown, "dev.databricks.com");
-    expect(result.startsWith(ABOUT_START)).toBe(true);
-    expect(result).toContain("# Hello World App");
-  });
-
-  test("solution markdown starts with about devhub", () => {
-    const markdown = getDetailMarkdown("solutions", "devhub-launch");
-    const result = prependLlmsReference(markdown, "dev.databricks.com");
-    expect(result.startsWith(ABOUT_START)).toBe(true);
-    expect(result).toContain("# Introducing dev.databricks.com");
-  });
-
-  test("templates meta-section starts with about devhub", () => {
-    const markdown = getDetailMarkdown("templates", "agentic-support-console");
-    const result = prependLlmsReference(markdown, "dev.databricks.com");
-    expect(result.startsWith(ABOUT_START)).toBe(true);
-    expect(result).toContain("## Agentic Support Console");
+  test("preserves canonical origin when production host is used", () => {
+    const body = getDetailMarkdown(
+      "recipes",
+      "connect-workstation-to-databricks",
+    );
+    const result = composeTemplateAgentPrompt({
+      body,
+      section: "recipes",
+      slug: "connect-workstation-to-databricks",
+      siteOrigin: "dev.databricks.com",
+    });
+    expect(result).toContain("https://dev.databricks.com/llms.txt");
+    expect(result).toContain("- Website: https://dev.databricks.com");
   });
 });
 
@@ -216,9 +239,9 @@ describe("slug normalization strips .md extension", () => {
   test("recipe slug with .md extension resolves", () => {
     const markdown = getDetailMarkdown(
       "recipes",
-      "databricks-local-bootstrap.md",
+      "connect-workstation-to-databricks.md",
     );
-    expect(markdown).toContain("## Databricks Local App Development Bootstrap");
+    expect(markdown).toContain("## Connect Your Workstation to Databricks");
   });
 
   test("templates slug with .md extension resolves", () => {

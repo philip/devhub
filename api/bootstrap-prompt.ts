@@ -1,10 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { getDetailMarkdown, readAboutDevhubBody } from "./content-markdown";
-import { substituteAboutDevhubLlmsUrl } from "../src/lib/copy-preamble";
-import {
-  BOOTSTRAP_PROMPT_SECTION,
-  BOOTSTRAP_PROMPT_SLUG,
-} from "../src/lib/bootstrap-prompt";
+import { loadAgentPromptParts } from "./content-markdown";
+import { composeAgentPrompt } from "../src/lib/copy-preamble";
 import { resolveSiteUrlForRequest } from "../src/lib/site-url";
 
 export default function handler(req: VercelRequest, res: VercelResponse): void {
@@ -15,18 +11,12 @@ export default function handler(req: VercelRequest, res: VercelResponse): void {
   }
 
   try {
-    const rootDir = process.cwd();
-    const siteUrl = resolveSiteUrlForRequest(req.headers.host);
-    const llmsUrl = `${siteUrl}/llms.txt`;
-    const about = substituteAboutDevhubLlmsUrl(
-      readAboutDevhubBody(rootDir),
-      llmsUrl,
-    );
-    const recipe = getDetailMarkdown(
-      BOOTSTRAP_PROMPT_SECTION,
-      BOOTSTRAP_PROMPT_SLUG,
-    );
-    const combined = `${about.trimEnd()}\n\n---\n\n${recipe.trimEnd()}`;
+    const siteOrigin = resolveSiteUrlForRequest(req.headers.host);
+    const combined = composeAgentPrompt({
+      parts: loadAgentPromptParts(),
+      kind: "hero",
+      siteOrigin,
+    });
 
     res.setHeader("Content-Type", "text/markdown; charset=utf-8");
     res.setHeader("Cache-Control", "public, max-age=0, s-maxage=600");

@@ -1,6 +1,6 @@
 ## Content Moderator
 
-This example demonstrates an internal content moderation tool built on Databricks: authors submit content for different channels (company blog, LinkedIn, Twitter, newsletter, press releases), moderators maintain per-channel guidelines, and an LLM scores each submission against those guidelines before a human reviewer makes the final call.
+This template demonstrates an internal content moderation tool built on Databricks: authors submit content for different channels (company blog, LinkedIn, Twitter, newsletter, press releases), moderators maintain per-channel guidelines, and an LLM scores each submission against those guidelines before a human reviewer makes the final call.
 
 ### Data Flow
 
@@ -17,7 +17,7 @@ Content moves through a review pipeline backed by Lakebase and AI Gateway:
 
 Setup and provisioning are documented in the repository’s **`template/README.md`**.
 
-To make this example your own:
+To make this template your own:
 
 - **Lakebase**: Point the app's `databricks.yml` at your own Lakebase project, branch, and database.
 - **SQL Warehouse**: Set the warehouse ID for the analytics queries.

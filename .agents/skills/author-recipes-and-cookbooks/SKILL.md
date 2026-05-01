@@ -9,15 +9,23 @@ description: Author and maintain DevHub templates published at `dev.databricks.c
 
 Use this skill to add or update DevHub templates with consistent structure, metadata, and writing quality. Treat each template as both an execution prompt for AI coding agents and a learning walkthrough for human developers.
 
+## The Three Internal Kinds
+
+Internally the catalog is built from three kinds of content that compose into each other:
+
+- **Recipe** — an atomic, copy-pasteable agent prompt for one outcome (e.g. "Create a Lakebase instance"). The smallest unit; everything else is built from these.
+- **Cookbook** — composes multiple recipes into a longer end-to-end guide, plus its own meta content (intro, narrative, ordering). No app source.
+- **Example** — a cookbook _plus_ a full deployable `examples/<slug>/template/` codebase. Bundles recipes and cookbook narrative around runnable app code.
+
+So: recipes are the atoms, cookbooks compose recipes with additional context, and examples are cookbooks with shipped code.
+
 ## Public Vocabulary
 
-There is exactly one outward-facing name for everything published at `dev.databricks.com/templates`: **template**.
-
-The site, navigation, filters, copy-pasted prompts, `llms.txt`, and the `/templates.md` markdown index all use "template(s)" — never "guide", "recipe", or "cookbook". When you write user-facing or agent-facing copy (titles, descriptions, intros, prerequisites, references), say "template".
+User-facing, all three kinds are presented as one thing: **template**. The site at `dev.databricks.com/templates`, navigation, filters, copy-pasted prompts, `llms.txt`, and the `/templates.md` markdown index all say "template(s)" — never "guide", "recipe", or "cookbook". When you write user-facing or agent-facing copy (titles, descriptions, intros, prerequisites, references), say "template".
 
 ## Internal Implementation Tiers
 
-Inside the codebase the template catalog is organized into three internal kinds. **These names live only in code, file paths, and this skill** — they never appear in shipped UI, markdown content, or generated indexes.
+The internal kind names (`recipe`, `cookbook`, `example`) **live only in code, file paths, and this skill** — they never appear in shipped UI, markdown content, or generated indexes.
 
 | Internal kind | Source location                                                                          | Route at runtime    | When to use                                                                |
 | ------------- | ---------------------------------------------------------------------------------------- | ------------------- | -------------------------------------------------------------------------- |
@@ -289,7 +297,7 @@ Slugs must be globally unique. The plugin throws at build time if any collision 
 
 ## References
 
-- Read `content/recipes/databricks-local-bootstrap/content.md` for atomic-template structure and tone.
+- Read `content/recipes/connect-workstation-to-databricks/content.md` for atomic-template structure and tone.
 - Read `content/examples/agentic-support-console/content.md` for example-template markdown style.
 - Read `src/lib/recipes/recipes.ts` for all type contracts (`Recipe`, `Cookbook`, `Example`).
 - Read `src/pages/templates/app-with-lakebase.tsx` for the cookbook composition pattern.

@@ -47,11 +47,11 @@ export function SolutionDetail({
 
                 <div className="mb-3 flex justify-end">
                   <AIExportMenu
+                    kind="solution"
                     rawMarkdown={rawMarkdown}
                     title={solution.title}
                     description={solution.description}
                     permalink={permalink}
-                    omitAboutDevhubPreamble
                   />
                 </div>
 
